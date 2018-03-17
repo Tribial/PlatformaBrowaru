@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PlatformaBrowaru.Share.Models
 {
-    public class ProductionOfABeerBrand //Damian Jacyna
+    public class BrandProduction //Damian Jacyna
     {
 
     }

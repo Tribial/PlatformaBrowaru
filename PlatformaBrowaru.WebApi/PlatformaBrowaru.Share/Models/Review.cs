@@ -6,5 +6,12 @@ namespace PlatformaBrowaru.Share.Models
 {
     public class Review // Artur Karpinski
     {
+        public virtual ApplicationUser Author { get; set; }
+        public virtual Brand Brand { get; set; }
+        public string Title { get; set; }
+        public string Contents { get; set; }
+        public DateTime AddedAt { get; set; }
+        public DateTime EditedAt { get; set; }
+        public bool IsRemoved { get; set; }
     }
 }

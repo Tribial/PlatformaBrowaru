@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PlatformaBrowaru.Share.Models
 {
-    class BeerReview
+    public class Rating // Artur Karpinski
     {
     }
 }

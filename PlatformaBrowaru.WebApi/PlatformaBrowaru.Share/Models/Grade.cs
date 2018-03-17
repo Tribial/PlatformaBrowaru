@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PlatformaBrowaru.Share.Models
 {
-    class BeerGrade
+    public class Grade //Artur Karpinski
     {
     }
 }

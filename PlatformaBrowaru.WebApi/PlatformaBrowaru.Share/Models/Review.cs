@@ -9,9 +9,9 @@ namespace PlatformaBrowaru.Share.Models
         public virtual ApplicationUser Author { get; set; }
         public virtual Brand Brand { get; set; }
         public string Title { get; set; }
-        public string Contents { get; set; }
+        public string Content { get; set; }
         public DateTime AddedAt { get; set; }
-        public DateTime EditedAt { get; set; }
-        public bool IsRemoved { get; set; }
+        public DateTime? EditedAt { get; set; }
+        public bool IsDleted { get; set; }
     }
 }

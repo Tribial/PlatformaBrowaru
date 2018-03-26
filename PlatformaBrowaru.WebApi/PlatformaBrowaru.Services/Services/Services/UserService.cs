@@ -32,9 +32,15 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             var user = _userRepository.Get(u => u.Email == loginModel.Email);
 
-            if (user?.PasswordHash != loginModel.Password)
+            if (user?.PasswordHash != loginModel.Password || user?.IsDeleted == true)
             {
                 result.Errors.Add("Złe dane logowania");
+                return result;
+            }
+
+            if (!user.IsVerified)
+            {
+                result.Errors.Add($"Najpierw kliknij w wysłany link aktywacyjny na maila {user.Email}");
                 return result;
             }
 

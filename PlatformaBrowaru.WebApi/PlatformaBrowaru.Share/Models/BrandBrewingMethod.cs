@@ -6,8 +6,9 @@ namespace PlatformaBrowaru.Share.Models
 {
     public class BrandBrewingMethod
     {
-        public int BrandId { get; set; }
-        public Brand Brand { get; set; }
-        public string BrewingMethod { get; set; }
+        public long BrandId { get; set; }
+        public virtual Brand Brand { get; set; }
+        public long BrewingMethodId { get; set; }
+        public virtual BrewingMethod BrewingMethod { get; set; }
     }
 }

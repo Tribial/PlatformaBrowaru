@@ -6,9 +6,9 @@ namespace PlatformaBrowaru.Share.Models
 {
     public class BrandSeason
     {
-        public int BrandId { get; set; }
+        public long BrandId { get; set; }
         public virtual Brand Brand { get; set; }
-
-        public string SeasonName { get; set; }
+        public virtual Season Season { get; set; }
+        public long SeasonId { get; set; }
     }
 }

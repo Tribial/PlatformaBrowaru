@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2002
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlatformaBrowaru.WebApi", "PlatformaBrowaru.WebApi\PlatformaBrowaru.WebApi.csproj", "{4635018E-735D-49CA-9870-61B0D5505273}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlatformaBrowaru.WebApi", "PlatformaBrowaru.WebApi\PlatformaBrowaru.WebApi.csproj", "{4635018E-735D-49CA-9870-61B0D5505273}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlatformaBrowaru.Data", "PlatformaBrowaru.Data\PlatformaBrowaru.Data.csproj", "{49673D1C-C04C-4D60-81A6-E60E8969A617}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlatformaBrowaru.Data", "PlatformaBrowaru.Data\PlatformaBrowaru.Data.csproj", "{49673D1C-C04C-4D60-81A6-E60E8969A617}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlatformaBrowaru.Services", "PlatformaBrowaru.Services\PlatformaBrowaru.Services.csproj", "{362D88B4-1B3B-4B15-B63C-173617228EF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlatformaBrowaru.Services", "PlatformaBrowaru.Services\PlatformaBrowaru.Services.csproj", "{362D88B4-1B3B-4B15-B63C-173617228EF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlatformaBrowaru.Share", "PlatformaBrowaru.Share\PlatformaBrowaru.Share.csproj", "{FFC696C8-0185-44A0-A9A8-BB311A53372C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlatformaBrowaru.Share", "PlatformaBrowaru.Share\PlatformaBrowaru.Share.csproj", "{FFC696C8-0185-44A0-A9A8-BB311A53372C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlatformaBrowaru.Tests", "PlatformaBrowaru.Tests\PlatformaBrowaru.Tests.csproj", "{2784B65A-E871-44C1-ADFE-F8388739483D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{FFC696C8-0185-44A0-A9A8-BB311A53372C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFC696C8-0185-44A0-A9A8-BB311A53372C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFC696C8-0185-44A0-A9A8-BB311A53372C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2784B65A-E871-44C1-ADFE-F8388739483D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2784B65A-E871-44C1-ADFE-F8388739483D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2784B65A-E871-44C1-ADFE-F8388739483D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2784B65A-E871-44C1-ADFE-F8388739483D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

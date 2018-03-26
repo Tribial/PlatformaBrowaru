@@ -6,6 +6,7 @@ namespace PlatformaBrowaru.Share.Models
 {
     public class Brewery //Damian Jacyna
     {
+        public long Id { get; set; }
         public string Name { get; set; }
         public string Adress { get; set; }
         public string Description { get; set; }
@@ -17,8 +18,6 @@ namespace PlatformaBrowaru.Share.Models
         public string DeletionReason { get; set; }
         public DateTime EditedAt { get; set; }
         public virtual ApplicationUser EditedBy { get; set; }
-
-        public virtual BrewingGroup BrewingGroup { get; set; }
         public virtual List<BrandProduction> BrandProductions { get; set; }
     }
 }

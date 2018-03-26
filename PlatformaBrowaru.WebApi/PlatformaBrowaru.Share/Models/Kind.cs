@@ -6,6 +6,7 @@ namespace PlatformaBrowaru.Share.Models
 {
     public class Kind //Artur Karpinski
     {
+        public long Id { get; set; }
         public string Name { get; set; }
         public string CountryOfOrigin { get; set; }
         public virtual ApplicationUser AddedBy { get; set; } 

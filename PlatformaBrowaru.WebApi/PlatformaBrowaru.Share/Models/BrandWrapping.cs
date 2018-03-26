@@ -8,7 +8,7 @@ namespace PlatformaBrowaru.Share.Models
     {
         public int BrandId { get; set; }
         public virtual Brand Brand { get; set; }
-
-        public string WrappingName { get; set; }
+        public virtual Wrapping Wrapping { get; set; }
+        public long WrappingId { get; set; }
     }
 }

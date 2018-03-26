@@ -6,6 +6,7 @@ namespace PlatformaBrowaru.Share.Models
 {
     public class Review // Artur Karpinski
     {
+        public long Id { get; set; }
         public virtual ApplicationUser Author { get; set; }
         public virtual Brand Brand { get; set; }
         public string Title { get; set; }

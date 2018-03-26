@@ -6,6 +6,7 @@ namespace PlatformaBrowaru.Share.Models
 {
     public class Brand // Fabian Domurad
     {
+        public long Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string Ingredients { get; set; }
@@ -13,7 +14,7 @@ namespace PlatformaBrowaru.Share.Models
         public decimal AlcoholAmountPercent { get; set; }
         public decimal ExtractPercent { get; set; }
         public int HopIntensity { get; set; }
-        public int TasteFullness { get; set; }//tutaj nie mam pojęcia jak inaczej to może wyglądać... xD
+        public int TasteFullness { get; set; }
         public int Sweetness { get; set; }
         public virtual Kind Kind { get; set; }
         public bool IsPasteurized { get; set; }
@@ -30,5 +31,8 @@ namespace PlatformaBrowaru.Share.Models
         public virtual ApplicationUser DeletedBy { get; set; }
         public string DeletionReason { get; set; }
         public bool IsAccepted { get; set; }
+        public virtual List<Rating> Ratings { get; set; }
+        public virtual List<Review> Reviews { get; set; }
+        public virtual BrandProduction BrandProduction { get; set; }
     }
 }

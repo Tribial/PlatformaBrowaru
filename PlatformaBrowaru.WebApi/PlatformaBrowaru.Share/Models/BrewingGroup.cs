@@ -5,7 +5,8 @@ using System.Text;
 namespace PlatformaBrowaru.Share.Models
 {
     public class BrewingGroup //Damian Jacyna
-    {   
+    {
+        public long Id { get; set; }
         public string Name { get; set; }
         public DateTime CreationDate { get; set; }
         public string Adress { get; set; }

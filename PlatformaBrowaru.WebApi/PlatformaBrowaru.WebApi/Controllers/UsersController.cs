@@ -9,7 +9,7 @@ using PlatformaBrowaru.Share.BindingModels;
 namespace PlatformaBrowaru.WebApi.Controllers
 {
     [Route("Users")]
-    public class UsersController : Controller
+    public class UsersController : BaseController
     {
         private readonly IUserService _userService;
 
@@ -21,6 +21,11 @@ namespace PlatformaBrowaru.WebApi.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> LoginAsync([FromBody]LoginBindingModel loginModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+
             var result = await _userService.LoginAsync(loginModel);
             if (result.ErrorOccured)
             {

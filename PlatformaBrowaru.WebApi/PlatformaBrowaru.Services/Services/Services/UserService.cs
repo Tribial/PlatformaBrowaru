@@ -54,6 +54,35 @@ namespace PlatformaBrowaru.Services.Services.Services
             return result;
         }
 
+        public async Task<ResponseDto<BaseModelDto>> LogoutAsync(long userId)
+        {
+            var result = new ResponseDto<BaseModelDto>();
+
+            if (!_userRepository.Exists(u => u.Id == userId))
+            {
+                result.Errors.Add("Taki użytkownik nie istnieje");
+                return result;
+            }
+
+            var token = await _userRepository.GetRefreshTokenAsync(userId);
+
+            if (token == null)
+            {
+                result.Errors.Add("Nie jesteś zalogowany");
+                return result;
+            }
+
+            var logoutResult = await _userRepository.RemoveRefreshTokenAsync(token);
+
+            if (logoutResult)
+            {
+                result.Errors.Add("Wystąpił problem po stronie serwera, spróbuj ponownie za chwile");
+            }
+
+            return result;
+
+        }
+
         private async Task<ResponseDto<LoginDto>> GenerateTokensAsync(ApplicationUser user)
         {
             var secretKey = _configurationService.GetValue("Jwt:Key");

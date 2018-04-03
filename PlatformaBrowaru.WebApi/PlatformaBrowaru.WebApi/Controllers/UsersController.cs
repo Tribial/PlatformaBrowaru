@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlatformaBrowaru.Services.Services.Interfaces;
 using PlatformaBrowaru.Share.BindingModels;
@@ -9,6 +11,7 @@ using PlatformaBrowaru.Share.BindingModels;
 namespace PlatformaBrowaru.WebApi.Controllers
 {
     [Route("Users")]
+    [Authorize]
     public class UsersController : BaseController
     {
         private readonly IUserService _userService;
@@ -34,6 +37,22 @@ namespace PlatformaBrowaru.WebApi.Controllers
 
             return Ok(result);
 
+        }
+
+        [HttpPost("Logout")]
+        public async Task<IActionResult> LogoutAsync()
+        {
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = await _userService.LogoutAsync(userId);
+
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
     }
 }

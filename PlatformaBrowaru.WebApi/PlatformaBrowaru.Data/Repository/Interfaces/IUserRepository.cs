@@ -11,7 +11,7 @@ namespace PlatformaBrowaru.Data.Repository.Interfaces
         bool Exists(Func<ApplicationUser, bool> function);
         ApplicationUser Get(Func<ApplicationUser, bool> function);
         Task<bool> InsertRefreshTokenAsync(RefreshToken refreshToken);
-        Task<RefreshToken> GetRefreshTokenAsync(long userIdAsString);
+        Task<RefreshToken> GetRefreshTokenAsync(long userId);
         Task<bool> RemoveRefreshTokenAsync(RefreshToken refreshToken);
     }
 }

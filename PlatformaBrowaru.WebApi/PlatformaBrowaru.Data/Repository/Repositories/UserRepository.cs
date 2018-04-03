@@ -36,9 +36,9 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             return await SaveAsync();
         }
 
-        public async Task<RefreshToken> GetRefreshTokenAsync(long userIdAsString)
+        public async Task<RefreshToken> GetRefreshTokenAsync(long userId)
         {
-            return await _dbContext.RefreshTokens.FirstOrDefaultAsync(t => t.UserId == userIdAsString);
+            return await _dbContext.RefreshTokens.FirstOrDefaultAsync(t => t.UserId == userId);
         }
 
         public async Task<bool> RemoveRefreshTokenAsync(RefreshToken refreshToken)

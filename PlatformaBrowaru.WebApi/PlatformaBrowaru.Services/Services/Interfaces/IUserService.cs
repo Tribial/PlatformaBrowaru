@@ -9,6 +9,7 @@ namespace PlatformaBrowaru.Services.Services.Interfaces
     public interface IUserService
     {
         Task<ResponseDto<LoginDto>> LoginAsync(LoginBindingModel loginModel);
+        ResponseDto<BaseModelDto> Register(RegisterBindingModel registerModel);
         Task<ResponseDto<BaseModelDto>> LogoutAsync(long userId);
     }
 }

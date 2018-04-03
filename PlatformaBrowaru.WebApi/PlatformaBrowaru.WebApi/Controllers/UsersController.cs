@@ -39,6 +39,26 @@ namespace PlatformaBrowaru.WebApi.Controllers
 
         }
 
+        [AllowAnonymous]
+        [HttpPost("Register")]
+        public IActionResult Register([FromBody]RegisterBindingModel registerModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = _userService.Register(registerModel);
+
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+
+            return Ok(result);
+        }
+
         [HttpPost("Logout")]
         public async Task<IActionResult> LogoutAsync()
         {

@@ -19,6 +19,11 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             _dbContext = dbContext;
         }
 
+        public bool Exists(Func<ApplicationUser, bool> function)
+        {
+            return _dbContext.Users.FirstOrDefault(function) != null;
+        }
+
         public ApplicationUser Get(Func<ApplicationUser, bool> function)
         {
             var result = _dbContext.Users.FirstOrDefault(function);

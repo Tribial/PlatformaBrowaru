@@ -44,6 +44,7 @@ namespace PlatformaBrowaru.Tests
             var service = new UserService(repository.Object, configuration.Object);
             var controller = new UsersController(service);
 
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
             repository.Setup(x => x.InsertRefreshTokenAsync(It.IsAny<RefreshToken>())).Returns(Task.FromResult(true));
 
@@ -58,6 +59,141 @@ namespace PlatformaBrowaru.Tests
 
             Assert.False(loginResult.ErrorOccured);
             Assert.NotNull(loginResult.Object);
+        }
+
+        [Fact]
+        public void ShouldNotLoginOnInvalidEmail()
+        {
+            var loginModel = new LoginBindingModel
+            {
+                Email = "jan.kowalskiii@mail.com",
+                Password = "VeryStrongPassword"
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var service = new UserService(repository.Object, configuration.Object);
+            var controller = new UsersController(service);
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+
+            var resultRaw = controller.LoginAsync(loginModel).Result;
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var loginResult = Assert.IsAssignableFrom<ResponseDto<LoginDto>>(result.Value);
+
+            Assert.True(loginResult.ErrorOccured);
+            Assert.Contains("Złe dane logowania", loginResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldNotLoginOnInvalidPassword()
+        {
+            var loginModel = new LoginBindingModel
+            {
+                Email = "jan.kowalski@mail.com",
+                Password = "VeryStrongPassword"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "OtherStrongPassword".ToHash(),
+                Username = "jkowalski"
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var service = new UserService(repository.Object, configuration.Object);
+            var controller = new UsersController(service);
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+
+            var resultRaw = controller.LoginAsync(loginModel).Result;
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var loginResult = Assert.IsAssignableFrom<ResponseDto<LoginDto>>(result.Value);
+
+            Assert.True(loginResult.ErrorOccured);
+            Assert.Contains("Złe dane logowania", loginResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldNotLoginDeletedUser()
+        {
+            var loginModel = new LoginBindingModel
+            {
+                Email = "jan.kowalski@mail.com",
+                Password = "VeryStrongPassword"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = true,
+                IsVerified = true,
+                PasswordHash = loginModel.Password.ToHash(),
+                Username = "jkowalski"
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var service = new UserService(repository.Object, configuration.Object);
+            var controller = new UsersController(service);
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+
+            var resultRaw = controller.LoginAsync(loginModel).Result;
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var loginResult = Assert.IsAssignableFrom<ResponseDto<LoginDto>>(result.Value);
+
+            Assert.True(loginResult.ErrorOccured);
+            Assert.Contains("Złe dane logowania", loginResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldNotLoginNotActivatedAccount()
+        {
+            var loginModel = new LoginBindingModel
+            {
+                Email = "jan.kowalski@mail.com",
+                Password = "VeryStrongPassword"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = false,
+                PasswordHash = loginModel.Password.ToHash(),
+                Username = "jkowalski"
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var service = new UserService(repository.Object, configuration.Object);
+            var controller = new UsersController(service);
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+
+            var resultRaw = controller.LoginAsync(loginModel).Result;
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var loginResult = Assert.IsAssignableFrom<ResponseDto<LoginDto>>(result.Value);
+
+            Assert.True(loginResult.ErrorOccured);
+            Assert.Contains($"Najpierw kliknij w wysłany link aktywacyjny na maila {user.Email}", loginResult.Errors);
         }
     }
 }

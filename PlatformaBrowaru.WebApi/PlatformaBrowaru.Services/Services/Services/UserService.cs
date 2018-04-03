@@ -30,9 +30,15 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             loginModel.Password = loginModel.Password.ToHash();
 
+            if (!_userRepository.Exists(u => u.Email == loginModel.Email))
+            {
+                result.Errors.Add("Złe dane logowania");
+                return result;
+            }
+
             var user = _userRepository.Get(u => u.Email == loginModel.Email);
 
-            if (user?.PasswordHash != loginModel.Password || user?.IsDeleted == true)
+            if (user.PasswordHash != loginModel.Password || user.IsDeleted == true)
             {
                 result.Errors.Add("Złe dane logowania");
                 return result;

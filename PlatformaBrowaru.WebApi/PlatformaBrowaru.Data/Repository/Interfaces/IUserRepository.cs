@@ -8,6 +8,7 @@ namespace PlatformaBrowaru.Data.Repository.Interfaces
 {
     public interface IUserRepository
     {
+        bool Exists(Func<ApplicationUser, bool> function);
         ApplicationUser Get(Func<ApplicationUser, bool> function);
         Task<bool> InsertRefreshTokenAsync(RefreshToken refreshToken);
         Task<RefreshToken> GetRefreshTokenAsync(long userIdAsString);

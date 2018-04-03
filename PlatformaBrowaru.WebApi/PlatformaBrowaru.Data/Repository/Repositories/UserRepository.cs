@@ -14,6 +14,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
     {
         private readonly ApplicationDbContext _dbContext;
 
+
         public UserRepository(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -45,6 +46,12 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
         {
             _dbContext.RefreshTokens.Remove(refreshToken);
             return await SaveAsync();
+        }
+
+        public void Insert(ApplicationUser user)
+        {
+            _dbContext.Add(user);
+            _dbContext.SaveChanges();
         }
 
         private async Task<bool> SaveAsync()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -115,6 +116,51 @@ namespace PlatformaBrowaru.Services.Services.Services
             if (insertResult) return result;
 
             result.Errors.Add("Wystąpił problem przy logowaniu");
+            return result;
+        }
+
+        public ResponseDto<BaseModelDto> Register(RegisterBindingModel registerModel)
+        {
+            var result = new ResponseDto<BaseModelDto>
+            {
+                Errors = new List<string>()
+
+            };
+
+            var userWithSameUsernmeAlreadyExists = _userRepository.Exists(x => x.Username == registerModel.Username);
+
+            if (userWithSameUsernmeAlreadyExists)
+            {
+                result.Errors.Add("Podany przez ciebie login już istnieje");
+                return result;
+            }
+
+            var userWithSameEmailAlreadyExists = _userRepository.Exists(x => x.Email == registerModel.Email);
+
+            if (userWithSameEmailAlreadyExists)
+            {
+                result.Errors.Add("Podany przez ciebie email już istnieje");
+                return result;
+            }
+            var user = new ApplicationUser()
+            {
+                FirstName = registerModel.FirstName,
+                LastName = registerModel.LastName,
+                Username = registerModel.Username,
+                Email = registerModel.Email,
+                PasswordHash = registerModel.PasswordHash.ToHash(),
+                CreatedAt = DateTime.Now
+            };
+
+            try
+            {
+                _userRepository.Insert(user);
+            }
+            catch (Exception e)
+            {
+                result.Errors.Add(e.Message);
+            }
+
             return result;
         }
     }

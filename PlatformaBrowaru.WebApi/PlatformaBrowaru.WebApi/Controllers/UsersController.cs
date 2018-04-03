@@ -11,7 +11,7 @@ using PlatformaBrowaru.Share.BindingModels;
 namespace PlatformaBrowaru.WebApi.Controllers
 {
     [Route("Users")]
-    [Authorize]
+    //[Authorize]
     public class UsersController : BaseController
     {
         private readonly IUserService _userService;

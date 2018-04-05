@@ -199,7 +199,34 @@ namespace PlatformaBrowaru.Tests
             Assert.True(loginResult.ErrorOccured);
             Assert.Contains($"Najpierw kliknij w wysłany link aktywacyjny na maila {user.Email}", loginResult.Errors);
         }
+        //[Fact]
+        //public void ShouldReturnOkWhenRegisterSuccessfull()
+        //{
+        //    var registerModel = new RegisterBindingModel
+        //    {
+        //        FirstName="Arturo",
+        //        LastName="Karpinski",
+        //        Username="Arturo",
+        //        Email="mail@mail.com",
+        //        Password="1234567890",
+        //        ConfirmPassword="1234567890"
 
+        //    };
+        //    var repository = new Mock<IUserRepository>();
+        //    var configuration = new Mock<IConfigurationService>();
+        //    var service = new UserService(repository.Object, configuration.Object);
+        //    var controller = new UsersController(service);
+
+        //    repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+
+
+
+        //    var result = controller.RegisterAsync(registerModel).Result;
+        //    var okResult = Assert.IsType<OkObjectResult>(result);
+        //    var resultValue = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(okResult.Value);
+
+        //    Assert.False(resultValue.ErrorOccured);
+        //}
         [Fact]
         public async void ShouldLogoutWithSuccess()
         {
@@ -215,6 +242,9 @@ namespace PlatformaBrowaru.Tests
                 PasswordHash = "VeryStrongPassword".ToHash(),
                 Username = "jkowalski"
             };
+        
+
+
 
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();

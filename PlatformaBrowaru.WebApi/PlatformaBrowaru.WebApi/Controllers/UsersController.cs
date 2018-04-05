@@ -63,6 +63,7 @@ namespace PlatformaBrowaru.WebApi.Controllers
         public async Task<IActionResult> LogoutAsync()
         {
             var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            
             var userId = Convert.ToInt64(rawUserId);
 
             var result = await _userService.LogoutAsync(userId);

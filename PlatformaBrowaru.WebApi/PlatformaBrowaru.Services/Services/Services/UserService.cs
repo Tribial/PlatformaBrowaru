@@ -75,7 +75,7 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             var logoutResult = await _userRepository.RemoveRefreshTokenAsync(token);
 
-            if (logoutResult)
+            if (!logoutResult)
             {
                 result.Errors.Add("Wystąpił problem po stronie serwera, spróbuj ponownie za chwile");
             }
@@ -84,7 +84,7 @@ namespace PlatformaBrowaru.Services.Services.Services
 
         }
 
-        private async Task<ResponseDto<LoginDto>> GenerateTokensAsync(ApplicationUser user)
+        public async Task<ResponseDto<LoginDto>> GenerateTokensAsync(ApplicationUser user)
         {
             var secretKey = _configurationService.GetValue("Jwt:Key");
             var issuer = _configurationService.GetValue("Jwt:Issuer");

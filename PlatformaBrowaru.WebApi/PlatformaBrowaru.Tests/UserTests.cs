@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -198,46 +200,53 @@ namespace PlatformaBrowaru.Tests
             Assert.Contains($"Najpierw kliknij w wysłany link aktywacyjny na maila {user.Email}", loginResult.Errors);
         }
 
-        //[Fact]
-        //public void ShouldLogoutSuccessful()
-        //{
-        //    var user = new ApplicationUser
-        //    {
-        //        Email = "jan.kowalski@mail.com",
-        //        CreatedAt = DateTime.Now.AddDays(-5),
-        //        FirstName = "Jan",
-        //        LastName = "Kowalski",
-        //        Id = 1,
-        //        IsDeleted = false,
-        //        IsVerified = false,
-        //        PasswordHash = "SomePassword".ToHash(),
-        //        Username = "jkowalski"
-        //    };
+        [Fact]
+        public async void ShouldLogoutWithSuccess()
+        {
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "VeryStrongPassword".ToHash(),
+                Username = "jkowalski"
+            };
 
-        //    var userIdAsString = "1";
-            
-        //    var repository = new Mock<IUserRepository>();
-        //    var configuration = new Mock<IConfigurationService>();
-        //    var service = new UserService(repository.Object, configuration.Object);
-        //    var token = service
-        //    var controller = new UsersController(service);
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var service = new UserService(repository.Object, configuration.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
 
-        //    repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
-        //    repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(Task.FromResult(token));
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).
+                Returns(
+                    Task.FromResult(
+                        new RefreshToken
+                        {
+                            Token = "AnyToken",
+                            TokenExpirationDate = DateTime.Now
+                        }
+                    )
+                );
+            repository.Setup(x => x.RemoveRefreshTokenAsync(It.IsAny<RefreshToken>())).Returns(Task.FromResult(true));
 
-        //    var contextMock = new Mock<HttpContext>();
-        //    var userIdClaim = new Claim(ClaimTypes.Sid, userIdAsString);
+            var resultRaw = await controller.LogoutAsync();
+            var result = Assert.IsType<OkObjectResult>(resultRaw);
+            var logoutResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
 
-        //    contextMock.Setup(x => x.User.Claims).Returns();
-
-        //    controller.ControllerContext.HttpContext = contextMock.Object;
-
-        //    var resultRaw = controller.LoginAsync(loginModel).Result;
-        //    var result = Assert.IsType<OkObjectResult>(resultRaw);
-        //    var loginResult = Assert.IsAssignableFrom<ResponseDto<LoginDto>>(result.Value);
-
-        //    Assert.False(loginResult.ErrorOccured);
-        //    Assert.NotNull(loginResult.Object);
-        //}
+            Assert.False(logoutResult.ErrorOccured);
+        }
     }
 }

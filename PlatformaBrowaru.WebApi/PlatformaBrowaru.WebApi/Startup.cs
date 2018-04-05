@@ -61,6 +61,7 @@ namespace PlatformaBrowaru.WebApi
                     };
                 });
 
+            services.AddCors();
             services.AddMvc();
 
             services.AddSwaggerGen(c =>
@@ -77,6 +78,14 @@ namespace PlatformaBrowaru.WebApi
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors(corsPolicyBuilder =>
+                corsPolicyBuilder.WithOrigins("*")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+            );
+
+            app.UseAuthentication();
 
             app.UseMvc();
 

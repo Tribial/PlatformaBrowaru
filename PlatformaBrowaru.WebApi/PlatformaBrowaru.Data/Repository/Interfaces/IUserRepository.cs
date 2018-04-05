@@ -13,6 +13,6 @@ namespace PlatformaBrowaru.Data.Repository.Interfaces
         Task<bool> InsertRefreshTokenAsync(RefreshToken refreshToken);
         Task<RefreshToken> GetRefreshTokenAsync(long userId);
         Task<bool> RemoveRefreshTokenAsync(RefreshToken refreshToken);
-        void Insert(ApplicationUser user);
+        Task<bool> Insert(ApplicationUser user);
     }
 }

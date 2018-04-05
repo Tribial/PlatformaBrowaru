@@ -148,7 +148,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             return result;
         }
 
-        public ResponseDto<BaseModelDto> Register(RegisterBindingModel registerModel)
+        public async Task<ResponseDto<BaseModelDto>> RegisterAsync(RegisterBindingModel registerModel)
         {
             var result = new ResponseDto<BaseModelDto>
             {
@@ -177,17 +177,15 @@ namespace PlatformaBrowaru.Services.Services.Services
                 LastName = registerModel.LastName,
                 Username = registerModel.Username,
                 Email = registerModel.Email,
-                PasswordHash = registerModel.PasswordHash.ToHash(),
+                PasswordHash = registerModel.Password.ToHash(),
                 CreatedAt = DateTime.Now
             };
 
-            try
+            var userRepository = await _userRepository.Insert(user);
+            if (!userRepository)
             {
-                _userRepository.Insert(user);
-            }
-            catch (Exception e)
-            {
-                result.Errors.Add(e.Message);
+                result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później");
+                return result;
             }
 
             return result;

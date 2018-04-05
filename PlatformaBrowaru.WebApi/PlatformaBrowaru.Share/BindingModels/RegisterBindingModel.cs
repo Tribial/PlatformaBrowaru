@@ -26,9 +26,9 @@ namespace PlatformaBrowaru.Share.BindingModels
         [Required]
         [PasswordPropertyText]
         [StringLength(30, ErrorMessage = "Hasło powinno zawierać od 7 do 30 znaków", MinimumLength = 7)]
-        public string PasswordHash { get; set; }
+        public string Password { get; set; }
 
-        [Compare("PasswordHash")]
+        [Compare("Password")]
         public string ConfirmPassword{ get; set; }
     }
 }

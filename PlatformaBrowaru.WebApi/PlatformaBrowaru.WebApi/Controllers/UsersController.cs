@@ -41,14 +41,14 @@ namespace PlatformaBrowaru.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpPost("Register")]
-        public IActionResult Register([FromBody]RegisterBindingModel registerModel)
+        public async Task<IActionResult> RegisterAsync([FromBody]RegisterBindingModel registerModel)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var result = _userService.Register(registerModel);
+            var result = await _userService.RegisterAsync(registerModel);
 
             if (result.ErrorOccured)
             {

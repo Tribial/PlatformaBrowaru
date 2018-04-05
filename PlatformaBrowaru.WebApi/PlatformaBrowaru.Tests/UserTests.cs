@@ -199,6 +199,35 @@ namespace PlatformaBrowaru.Tests
         }
 
         //[Fact]
+        //public void ShouldReturnOkWhenRegisterSuccessfull()
+        //{
+        //    var registerModel = new RegisterBindingModel
+        //    {
+        //        FirstName="Arturo",
+        //        LastName="Karpinski",
+        //        Username="Arturo",
+        //        Email="mail@mail.com",
+        //        Password="1234567890",
+        //        ConfirmPassword="1234567890"
+
+        //    };
+        //    var repository = new Mock<IUserRepository>();
+        //    var configuration = new Mock<IConfigurationService>();
+        //    var service = new UserService(repository.Object, configuration.Object);
+        //    var controller = new UsersController(service);
+
+        //    repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+
+            
+
+        //    var result = controller.RegisterAsync(registerModel).Result;
+        //    var okResult = Assert.IsType<OkObjectResult>(result);
+        //    var resultValue = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(okResult.Value);
+
+        //    Assert.False(resultValue.ErrorOccured);
+        //}
+
+        //[Fact]
         //public void ShouldLogoutSuccessful()
         //{
         //    var user = new ApplicationUser
@@ -215,7 +244,7 @@ namespace PlatformaBrowaru.Tests
         //    };
 
         //    var userIdAsString = "1";
-            
+
         //    var repository = new Mock<IUserRepository>();
         //    var configuration = new Mock<IConfigurationService>();
         //    var service = new UserService(repository.Object, configuration.Object);

@@ -243,9 +243,6 @@ namespace PlatformaBrowaru.Tests
                 Username = "jkowalski"
             };
         
-
-
-
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
             var service = new UserService(repository.Object, configuration.Object);
@@ -277,6 +274,47 @@ namespace PlatformaBrowaru.Tests
             var logoutResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
 
             Assert.False(logoutResult.ErrorOccured);
+        }
+
+        [Fact]
+        public async void ShouldNotLogoutBecauseNotLoggedIn()
+        {
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "VeryStrongPassword".ToHash(),
+                Username = "jkowalski"
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var service = new UserService(repository.Object, configuration.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(Task.FromResult((RefreshToken)null));
+            repository.Setup(x => x.RemoveRefreshTokenAsync(It.IsAny<RefreshToken>())).Returns(Task.FromResult(true));
+
+            var resultRaw = await controller.LogoutAsync();
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var logoutResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(logoutResult.ErrorOccured);
+            Assert.Contains("Nie jesteś zalogowany", logoutResult.Errors);
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -43,8 +45,9 @@ namespace PlatformaBrowaru.Tests
 
             var repository = new Mock<IUserRepository>();
             var configuration =  new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
             var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service);
+            var controller = new UsersController(service, emailService.Object);
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
@@ -74,8 +77,9 @@ namespace PlatformaBrowaru.Tests
 
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
             var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service);
+            var controller = new UsersController(service, emailService.Object);
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
 
@@ -110,8 +114,9 @@ namespace PlatformaBrowaru.Tests
 
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
             var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service);
+            var controller = new UsersController(service, emailService.Object);
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
@@ -147,8 +152,9 @@ namespace PlatformaBrowaru.Tests
 
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
             var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service);
+            var controller = new UsersController(service, emailService.Object);
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
@@ -184,8 +190,9 @@ namespace PlatformaBrowaru.Tests
 
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
             var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service);
+            var controller = new UsersController(service, emailService.Object);
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
@@ -216,8 +223,9 @@ namespace PlatformaBrowaru.Tests
 
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
             var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service);
+            var controller = new UsersController(service, emailService.Object);
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
 
@@ -227,7 +235,7 @@ namespace PlatformaBrowaru.Tests
 
             Assert.False(getUserResult.ErrorOccured);
         }
-
+        
         //[Fact]
         //public void ShouldReturnOkWhenRegisterSuccessfull()
         //{
@@ -256,47 +264,96 @@ namespace PlatformaBrowaru.Tests
 
         //    Assert.False(resultValue.ErrorOccured);
         //}
+        [Fact]
+        public async void ShouldLogoutWithSuccess()
+        {
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "VeryStrongPassword".ToHash(),
+                Username = "jkowalski"
+            };
+        
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object);
+            var controller = new UsersController(service, emailService.Object);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
 
-        //[Fact]
-        //public void ShouldLogoutSuccessful()
-        //{
-        //    var user = new ApplicationUser
-        //    {
-        //        Email = "jan.kowalski@mail.com",
-        //        CreatedAt = DateTime.Now.AddDays(-5),
-        //        FirstName = "Jan",
-        //        LastName = "Kowalski",
-        //        Id = 1,
-        //        IsDeleted = false,
-        //        IsVerified = false,
-        //        PasswordHash = "SomePassword".ToHash(),
-        //        Username = "jkowalski"
-        //    };
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).
+                Returns(
+                    Task.FromResult(
+                        new RefreshToken
+                        {
+                            Token = "AnyToken",
+                            TokenExpirationDate = DateTime.Now
+                        }
+                    )
+                );
+            repository.Setup(x => x.RemoveRefreshTokenAsync(It.IsAny<RefreshToken>())).Returns(Task.FromResult(true));
 
-        //    var userIdAsString = "1";
+            var resultRaw = await controller.LogoutAsync();
+            var result = Assert.IsType<OkObjectResult>(resultRaw);
+            var logoutResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
 
-        //    var repository = new Mock<IUserRepository>();
-        //    var configuration = new Mock<IConfigurationService>();
-        //    var service = new UserService(repository.Object, configuration.Object);
-        //    var token = service
-        //    var controller = new UsersController(service);
+            Assert.False(logoutResult.ErrorOccured);
+        }
 
-        //    repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
-        //    repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(Task.FromResult(token));
+        [Fact]
+        public async void ShouldNotLogoutBecauseNotLoggedIn()
+        {
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "VeryStrongPassword".ToHash(),
+                Username = "jkowalski"
+            };
 
-        //    var contextMock = new Mock<HttpContext>();
-        //    var userIdClaim = new Claim(ClaimTypes.Sid, userIdAsString);
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object);
+            var controller = new UsersController(service, emailService.Object);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
-        //    contextMock.Setup(x => x.User.Claims).Returns();
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(Task.FromResult((RefreshToken)null));
+            repository.Setup(x => x.RemoveRefreshTokenAsync(It.IsAny<RefreshToken>())).Returns(Task.FromResult(true));
 
-        //    controller.ControllerContext.HttpContext = contextMock.Object;
+            var resultRaw = await controller.LogoutAsync();
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var logoutResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
 
-        //    var resultRaw = controller.LoginAsync(loginModel).Result;
-        //    var result = Assert.IsType<OkObjectResult>(resultRaw);
-        //    var loginResult = Assert.IsAssignableFrom<ResponseDto<LoginDto>>(result.Value);
-
-        //    Assert.False(loginResult.ErrorOccured);
-        //    Assert.NotNull(loginResult.Object);
-        //}
+            Assert.True(logoutResult.ErrorOccured);
+            Assert.Contains("Nie jesteś zalogowany", logoutResult.Errors);
+        }
     }
 }

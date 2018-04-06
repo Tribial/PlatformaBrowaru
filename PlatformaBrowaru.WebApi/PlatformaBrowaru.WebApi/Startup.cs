@@ -35,6 +35,7 @@ namespace PlatformaBrowaru.WebApi
 
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IConfigurationService, ConfigurationService>();
+            services.AddTransient<IEmailService, EmailService>();
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             services
@@ -61,6 +62,7 @@ namespace PlatformaBrowaru.WebApi
                     };
                 });
 
+            services.AddCors();
             services.AddMvc();
 
             services.AddSwaggerGen(c =>
@@ -77,6 +79,14 @@ namespace PlatformaBrowaru.WebApi
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors(corsPolicyBuilder =>
+                corsPolicyBuilder.WithOrigins("*")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+            );
+
+            app.UseAuthentication();
 
             app.UseMvc();
 

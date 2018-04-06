@@ -198,6 +198,36 @@ namespace PlatformaBrowaru.Tests
             Assert.Contains($"Najpierw kliknij w wysłany link aktywacyjny na maila {user.Email}", loginResult.Errors);
         }
 
+        [Fact]
+        public void ShouldReturnOkIfUserIdExist()
+        {
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abc".ToHash(),
+                Username = "jkowalski"
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var service = new UserService(repository.Object, configuration.Object);
+            var controller = new UsersController(service);
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+
+            var resultRaw = controller.GetUser(user.Id);
+            var result = Assert.IsType<OkObjectResult>(resultRaw);
+            var getUserResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.False(getUserResult.ErrorOccured);
+        }
+
         //[Fact]
         //public void ShouldReturnOkWhenRegisterSuccessfull()
         //{
@@ -218,7 +248,7 @@ namespace PlatformaBrowaru.Tests
 
         //    repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
 
-            
+
 
         //    var result = controller.RegisterAsync(registerModel).Result;
         //    var okResult = Assert.IsType<OkObjectResult>(result);

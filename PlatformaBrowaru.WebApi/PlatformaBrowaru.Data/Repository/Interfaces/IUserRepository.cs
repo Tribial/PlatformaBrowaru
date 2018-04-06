@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using PlatformaBrowaru.Share.Models;
+using PlatformaBrowaru.Share.ModelsDto;
 
 namespace PlatformaBrowaru.Data.Repository.Interfaces
 {
@@ -14,5 +15,6 @@ namespace PlatformaBrowaru.Data.Repository.Interfaces
         Task<RefreshToken> GetRefreshTokenAsync(long userId);
         Task<bool> RemoveRefreshTokenAsync(RefreshToken refreshToken);
         Task<bool> Insert(ApplicationUser user);
+        //ResponseDto<GetUserDto> GetUser(Func<ApplicationUser, bool> function);
     }
 }

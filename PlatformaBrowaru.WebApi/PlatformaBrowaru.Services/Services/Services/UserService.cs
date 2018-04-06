@@ -190,5 +190,29 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             return result;
         }
+
+        public ResponseDto<GetUserDto> GetUser(long id)
+        {
+            var user = _userRepository.Get(x => x.Id == id);
+            var result = new ResponseDto<GetUserDto>
+            {
+                Errors = new List<string>(),
+                Object = new GetUserDto()
+            };
+
+            var userWithThisIdExist = _userRepository.Exists(x => x.Id == id);
+            
+            if (!userWithThisIdExist)
+            {
+                result.Errors.Add("Coś poszło nie tak. Użytkownik o podanym Id nie istnieje.");
+                return result;
+            }
+            result.Object.FirstName = user.FirstName;
+            result.Object.LastName = user.LastName;
+            result.Object.Email = user.Email;
+            result.Object.Username = user.Username;
+
+            return result;
+        }
     }
 }

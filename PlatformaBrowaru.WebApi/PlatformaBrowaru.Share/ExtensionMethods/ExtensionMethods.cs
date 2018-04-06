@@ -44,5 +44,7 @@ namespace PlatformaBrowaru.Share.ExtensionMethods
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+
     }
 }

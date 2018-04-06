@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using PlatformaBrowaru.Data.Data;
 using PlatformaBrowaru.Data.Repository.Interfaces;
 using PlatformaBrowaru.Share.Models;
+using PlatformaBrowaru.Share.ModelsDto;
 
 namespace PlatformaBrowaru.Data.Repository.Repositories
 {
@@ -63,5 +64,12 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
         {
             return _dbContext.SaveChanges() > 0;
         }
+
+        //public ResponseDto<GetUserDto> GetUser(Func<ApplicationUser, bool> function)
+        //{
+        //    var result = _dbContext.Users.FirstOrDefault(function);
+
+        //    return result;
+        //}
     }
 }

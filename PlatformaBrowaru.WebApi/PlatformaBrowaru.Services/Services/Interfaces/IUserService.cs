@@ -11,5 +11,6 @@ namespace PlatformaBrowaru.Services.Services.Interfaces
         Task<ResponseDto<LoginDto>> LoginAsync(LoginBindingModel loginModel);
         Task<ResponseDto<BaseModelDto>> RegisterAsync(RegisterBindingModel registerModel);
         Task<ResponseDto<BaseModelDto>> LogoutAsync(long userId);
+        ResponseDto<GetUserDto> GetUser(long id);
     }
 }

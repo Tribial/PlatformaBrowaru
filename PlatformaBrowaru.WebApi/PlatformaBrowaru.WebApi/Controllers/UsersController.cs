@@ -74,5 +74,19 @@ namespace PlatformaBrowaru.WebApi.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("{id}")]
+        public IActionResult GetUser(long id)
+        {
+            var result = _userService.GetUser(id);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        
     }
 }

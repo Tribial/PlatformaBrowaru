@@ -15,10 +15,12 @@ namespace PlatformaBrowaru.WebApi.Controllers
     public class UsersController : BaseController
     {
         private readonly IUserService _userService;
+        private readonly IEmailService _emailService;
 
-        public UsersController(IUserService userService)
+        public UsersController(IUserService userService, IEmailService emailService)
         {
             _userService = userService;
+            _emailService = emailService;
         }
 
         [HttpPost("Login")]
@@ -37,6 +39,15 @@ namespace PlatformaBrowaru.WebApi.Controllers
 
             return Ok(result);
 
+        }
+
+        [AllowAnonymous]
+        [HttpPost("Test")]
+        public async Task<IActionResult> Testing()
+        {
+            await _emailService.SendEmail("domurad.fabian23@gmail.com", "Testowanie",
+                "A tutaj jakis tam kurde bedze sobie rzeczy se nie");
+            return Ok();
         }
 
         [AllowAnonymous]

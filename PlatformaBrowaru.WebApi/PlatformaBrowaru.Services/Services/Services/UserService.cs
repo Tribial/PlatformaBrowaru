@@ -18,11 +18,13 @@ namespace PlatformaBrowaru.Services.Services.Services
     {
         private readonly IConfigurationService _configurationService;
         private readonly IUserRepository _userRepository;
+        private readonly IEmailService _emailService;
 
-        public UserService(IUserRepository userRepository, IConfigurationService configurationService)
+        public UserService(IUserRepository userRepository, IConfigurationService configurationService, IEmailService emailService)
         {
             _userRepository = userRepository;
             _configurationService = configurationService;
+            _emailService = emailService;
         }
 
         public async Task<ResponseDto<LoginDto>> LoginAsync(LoginBindingModel loginModel)
@@ -187,6 +189,9 @@ namespace PlatformaBrowaru.Services.Services.Services
                 result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później");
                 return result;
             }
+
+            await _emailService.SendEmail("domurad.fabian23@gmail.com", "Testowanie",
+                "A tutaj jakis tam kurde bedze sobie rzeczy se nie");
 
             return result;
         }

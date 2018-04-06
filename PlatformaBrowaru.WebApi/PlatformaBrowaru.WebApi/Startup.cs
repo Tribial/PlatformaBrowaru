@@ -35,6 +35,7 @@ namespace PlatformaBrowaru.WebApi
 
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IConfigurationService, ConfigurationService>();
+            services.AddTransient<IEmailService, EmailService>();
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             services

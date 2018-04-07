@@ -15,5 +15,6 @@ namespace PlatformaBrowaru.Share.Models
         public DateTime CreatedAt { get; set; }
         public bool IsVerified { get; set; }
         public bool IsDeleted { get; set; }
+        public Guid Guid { get; set; }
     }
 }

@@ -178,7 +178,8 @@ namespace PlatformaBrowaru.Services.Services.Services
                 Username = registerModel.Username,
                 Email = registerModel.Email,
                 PasswordHash = registerModel.Password.ToHash(),
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                Guid = Guid.NewGuid()
             };
 
             var userRepository = await _userRepository.Insert(user);

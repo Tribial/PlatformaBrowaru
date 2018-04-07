@@ -31,6 +31,8 @@ namespace PlatformaBrowaru.Data.Migrations
 
                     b.Property<string>("FirstName");
 
+                    b.Property<Guid>("Guid");
+
                     b.Property<bool>("IsDeleted");
 
                     b.Property<bool>("IsVerified");

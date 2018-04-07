@@ -45,11 +45,11 @@ namespace PlatformaBrowaru.WebApi.Controllers
         [HttpPost("Test")]
         public async Task<IActionResult> Testing()
         {
-            await _emailService.SendEmail("domurad.fabian23@gmail.com", "Testowanie",
-                "A tutaj jakis tam kurde bedze sobie rzeczy se nie");
+            await _emailService.SendEmail("damian5996@wp.pl", "Testowanie",
+                "Tutaj będzie link aktywacyjny");
             return Ok();
         }
-
+        
         [AllowAnonymous]
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterAsync([FromBody]RegisterBindingModel registerModel)

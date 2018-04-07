@@ -15,12 +15,10 @@ namespace PlatformaBrowaru.WebApi.Controllers
     public class UsersController : BaseController
     {
         private readonly IUserService _userService;
-        private readonly IEmailService _emailService;
 
-        public UsersController(IUserService userService, IEmailService emailService)
+        public UsersController(IUserService userService)
         {
             _userService = userService;
-            _emailService = emailService;
         }
 
         [HttpPost("Login")]
@@ -41,14 +39,14 @@ namespace PlatformaBrowaru.WebApi.Controllers
 
         }
 
-        [AllowAnonymous]
+        /*[AllowAnonymous]
         [HttpPost("Test")]
         public async Task<IActionResult> Testing()
         {
             await _emailService.SendEmail("damian5996@wp.pl", "Testowanie",
                 "Tutaj będzie link aktywacyjny");
             return Ok();
-        }
+        }*/
         
         [AllowAnonymous]
         [HttpPost("Register")]
@@ -99,6 +97,19 @@ namespace PlatformaBrowaru.WebApi.Controllers
             return Ok(result);
         }
 
-        
+        [AllowAnonymous]
+        [HttpGet("Activate/{guid}")]
+        public IActionResult ActivateUser(Guid guid)
+        {
+            var result = _userService.ActivateUser(guid);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+
     }
 }

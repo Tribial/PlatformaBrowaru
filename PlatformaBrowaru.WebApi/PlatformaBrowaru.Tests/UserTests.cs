@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Text;
 using System.Threading;
@@ -46,8 +47,8 @@ namespace PlatformaBrowaru.Tests
             var repository = new Mock<IUserRepository>();
             var configuration =  new Mock<IConfigurationService>();
             var emailService = new Mock<IEmailService>();
-            var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service, emailService.Object);
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
@@ -78,8 +79,8 @@ namespace PlatformaBrowaru.Tests
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
             var emailService = new Mock<IEmailService>();
-            var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service, emailService.Object);
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
 
@@ -115,8 +116,8 @@ namespace PlatformaBrowaru.Tests
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
             var emailService = new Mock<IEmailService>();
-            var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service, emailService.Object);
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
@@ -153,8 +154,8 @@ namespace PlatformaBrowaru.Tests
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
             var emailService = new Mock<IEmailService>();
-            var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service, emailService.Object);
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
@@ -191,8 +192,8 @@ namespace PlatformaBrowaru.Tests
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
             var emailService = new Mock<IEmailService>();
-            var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service, emailService.Object);
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
@@ -206,7 +207,7 @@ namespace PlatformaBrowaru.Tests
         }
 
         [Fact]
-        public void ShouldReturnOkIfUserIdExist()
+        public void ShouldGetUserWithSuccess()
         {
             var user = new ApplicationUser
             {
@@ -218,52 +219,90 @@ namespace PlatformaBrowaru.Tests
                 IsDeleted = false,
                 IsVerified = true,
                 PasswordHash = "abc".ToHash(),
-                Username = "jkowalski"
+                Username = "jkowalski",
             };
+            
 
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
             var emailService = new Mock<IEmailService>();
-            var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service, emailService.Object);
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
 
             var resultRaw = controller.GetUser(user.Id);
             var result = Assert.IsType<OkObjectResult>(resultRaw);
-            var getUserResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+            var getUserResult = Assert.IsAssignableFrom<ResponseDto<GetUserDto>>(result.Value);
 
             Assert.False(getUserResult.ErrorOccured);
         }
-        
-        //[Fact]
-        //public void ShouldReturnOkWhenRegisterSuccessfull()
-        //{
-        //    var registerModel = new RegisterBindingModel
-        //    {
-        //        FirstName="Arturo",
-        //        LastName="Karpinski",
-        //        Username="Arturo",
-        //        Email="mail@mail.com",
-        //        Password="1234567890",
-        //        ConfirmPassword="1234567890"
 
-        //    };
-        //    var repository = new Mock<IUserRepository>();
-        //    var configuration = new Mock<IConfigurationService>();
-        //    var service = new UserService(repository.Object, configuration.Object);
-        //    var controller = new UsersController(service);
-
-        //    repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+        [Fact]
+        public void ShouldReturnErrorIfUserNotExist()
+        {
+            Guid guid = new Guid();
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abc".ToHash(),
+                Username = "jkowalski",
+                Guid = guid
+            };
 
 
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
 
-        //    var result = controller.RegisterAsync(registerModel).Result;
-        //    var okResult = Assert.IsType<OkObjectResult>(result);
-        //    var resultValue = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(okResult.Value);
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
 
-        //    Assert.False(resultValue.ErrorOccured);
-        //}
+            var resultRaw = controller.GetUser(user.Id);
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var getUserResult = Assert.IsAssignableFrom<ResponseDto<GetUserDto>>(result.Value);
+
+            Assert.True(getUserResult.ErrorOccured);
+            Assert.Contains("Coś poszło nie tak. Użytkownik o podanym Id nie istnieje.", getUserResult.Errors);
+            
+        }
+
+        [Fact]
+        public void ShouldReturnOkWhenRegisterSuccessfull()
+        {
+            var registerModel = new RegisterBindingModel
+            {
+                FirstName = "Arturo",
+                LastName = "Karpinski",
+                Username = "Arturo",
+                Email = "mail@mail.com",
+                Password = "1234567890",
+                ConfirmPassword = "1234567890"
+
+            };
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+
+            
+            var result = controller.RegisterAsync(registerModel).Result;
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var resultValue = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(okResult.Value);
+
+            Assert.False(resultValue.ErrorOccured);
+        }
         [Fact]
         public async void ShouldLogoutWithSuccess()
         {
@@ -283,8 +322,8 @@ namespace PlatformaBrowaru.Tests
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
             var emailService = new Mock<IEmailService>();
-            var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service, emailService.Object);
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.GivenName, user.Username),
@@ -333,8 +372,8 @@ namespace PlatformaBrowaru.Tests
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
             var emailService = new Mock<IEmailService>();
-            var service = new UserService(repository.Object, configuration.Object);
-            var controller = new UsersController(service, emailService.Object);
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.GivenName, user.Username),
@@ -354,6 +393,75 @@ namespace PlatformaBrowaru.Tests
 
             Assert.True(logoutResult.ErrorOccured);
             Assert.Contains("Nie jesteś zalogowany", logoutResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldActivateUserWithSuccess()
+        {
+            Guid guid = new Guid();
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = false,
+                PasswordHash = "abc".ToHash(),
+                Username = "jkowalski",
+                Guid = guid
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+
+            var resultRaw = controller.ActivateUser(user.Guid);
+            var result = Assert.IsType<OkObjectResult>(resultRaw);
+            var activateUserResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.False(activateUserResult.ErrorOccured);
+        }
+
+        [Fact]
+        public void ShouldReturnErrorIfUserAlreadyActivated()
+        {
+            Guid guid = new Guid();
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abc".ToHash(),
+                Username = "jkowalski",
+                Guid = guid
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+
+            var resultRaw = controller.ActivateUser(user.Guid);
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var activateUserResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(activateUserResult.ErrorOccured);
+            Assert.Contains("Twoje konto zostało już aktywowane", activateUserResult.Errors);
         }
     }
 }

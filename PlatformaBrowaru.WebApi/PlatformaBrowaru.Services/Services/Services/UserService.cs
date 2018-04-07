@@ -18,11 +18,13 @@ namespace PlatformaBrowaru.Services.Services.Services
     {
         private readonly IConfigurationService _configurationService;
         private readonly IUserRepository _userRepository;
+        private readonly IEmailService _emailService;
 
-        public UserService(IUserRepository userRepository, IConfigurationService configurationService)
+        public UserService(IUserRepository userRepository, IConfigurationService configurationService, IEmailService emailService)
         {
             _userRepository = userRepository;
             _configurationService = configurationService;
+            _emailService = emailService;
         }
 
         public async Task<ResponseDto<LoginDto>> LoginAsync(LoginBindingModel loginModel)
@@ -181,15 +183,16 @@ namespace PlatformaBrowaru.Services.Services.Services
                 CreatedAt = DateTime.Now,
                 Guid = Guid.NewGuid()
             };
-
+            
             var userRepository = await _userRepository.Insert(user);
-            if (!userRepository)
+            /*if (!userRepository)
             {
                 result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później");
                 return result;
-            }
+            }*/
 
-            //await _emailService.SendEmail("domurad.fabian23@gmail.com", "Testowanie", "A tutaj jakis tam kurde bedze sobie rzeczy se nie");
+            
+            await _emailService.SendEmail(user.Email, "Platforma Browaru - aktywacja", $"Witaj {user.FirstName}!\n Aby aktywować swoje konto kliknij w poniższy link:\n http://localhost:18831/Users/Activate/" + user.Guid);
 
             return result;
         }
@@ -214,6 +217,33 @@ namespace PlatformaBrowaru.Services.Services.Services
             result.Object.LastName = user.LastName;
             result.Object.Email = user.Email;
             result.Object.Username = user.Username;
+
+            return result;
+        }
+
+        public ResponseDto<BaseModelDto> ActivateUser(Guid guid)
+        {
+            var user = _userRepository.Get(x => x.Guid == guid);
+            var result = new ResponseDto<BaseModelDto>
+            {
+                Errors = new List<string>(),
+            };
+
+            if (user.IsVerified)
+            {
+                result.Errors.Add("Twoje konto zostało już aktywowane");
+                return result;
+            }
+            
+            var userWithThisGuidExist = _userRepository.Exists(x => x.Guid == guid);
+            if (!userWithThisGuidExist)
+            {
+                result.Errors.Add("Coś poszło nie tak. Użytkownik o podanym Guid nie istnieje.");
+                return result;
+            }
+            
+            user.IsVerified = true;
+            _userRepository.Save();
 
             return result;
         }

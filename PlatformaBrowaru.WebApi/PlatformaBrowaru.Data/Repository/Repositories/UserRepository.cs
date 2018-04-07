@@ -55,21 +55,15 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             return await SaveAsync();
         }
 
-        private async Task<bool> SaveAsync()
+        public async Task<bool> SaveAsync()
         {
             return await _dbContext.SaveChangesAsync() > 0;
         }
 
-        private bool Save()
+        public bool Save()
         {
             return _dbContext.SaveChanges() > 0;
         }
-
-        //public ResponseDto<GetUserDto> GetUser(Func<ApplicationUser, bool> function)
-        //{
-        //    var result = _dbContext.Users.FirstOrDefault(function);
-
-        //    return result;
-        //}
+        
     }
 }

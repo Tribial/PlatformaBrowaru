@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using PlatformaBrowaru.Share.BindingModels;
@@ -14,5 +15,6 @@ namespace PlatformaBrowaru.Services.Services.Interfaces
         Task<ResponseDto<BaseModelDto>> LogoutAsync(long userId);
         ResponseDto<GetUserDto> GetUser(long id);
         Task<ResponseDto<LoginDto>> GenerateTokensAsync(ApplicationUser user);
+        ResponseDto<BaseModelDto> ActivateUser(Guid guid);
     }
 }

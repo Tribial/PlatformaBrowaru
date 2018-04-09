@@ -242,7 +242,7 @@ namespace PlatformaBrowaru.Tests
         [Fact]
         public void ShouldReturnErrorIfUserNotExist()
         {
-            Guid guid = new Guid();
+            var guid = new Guid();
             var user = new ApplicationUser
             {
                 Email = "jan.kowalski@mail.com",
@@ -276,14 +276,14 @@ namespace PlatformaBrowaru.Tests
         }
 
         [Fact]
-        public void ShouldReturnOkWhenRegisterSuccessfull()
+        public async void ShouldReturnOkWhenRegisterSuccessfull()
         {
             var registerModel = new RegisterBindingModel
             {
                 FirstName = "Arturo",
                 LastName = "Karpinski",
                 Username = "Arturo",
-                Email = "mail@mail.com",
+                Email = "mailmail@mail.com",
                 Password = "1234567890",
                 ConfirmPassword = "1234567890"
 
@@ -295,9 +295,10 @@ namespace PlatformaBrowaru.Tests
             var controller = new UsersController(service);
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+            repository.Setup(x => x.Insert(It.IsAny<ApplicationUser>())).Returns(Task.FromResult(true));
 
             
-            var result = controller.RegisterAsync(registerModel).Result;
+            var result = await controller.RegisterAsync(registerModel);
             var okResult = Assert.IsType<OkObjectResult>(result);
             var resultValue = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(okResult.Value);
 

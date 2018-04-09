@@ -51,7 +51,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
 
         public async Task<bool> Insert(ApplicationUser user)
         {
-            _dbContext.Add(user);
+            await _dbContext.AddAsync(user);
             return await SaveAsync();
         }
 

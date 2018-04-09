@@ -306,6 +306,37 @@ namespace PlatformaBrowaru.Tests
         }
 
         [Fact]
+        public async void ShouldReturnErrorIfUsernameExist()
+        {
+            var registerModel = new RegisterBindingModel
+            {
+                FirstName = "Arturo",
+                LastName = "Karpinski",
+                Username = "Arturo",
+                Email = "mailmail@mail.com",
+                Password = "1234567890",
+                ConfirmPassword = "1234567890"
+
+            };
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);           
+
+
+            var result = await controller.RegisterAsync(registerModel);
+            var okResult = Assert.IsType<BadRequestObjectResult>(result);
+            var resultValue = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(okResult.Value);
+
+            Assert.True(resultValue.ErrorOccured);
+            Assert.Contains("Podany przez ciebie login już istnieje", resultValue.Errors);
+        }
+        
+
+        [Fact]
         public async void ShouldLogoutWithSuccess()
         {
             var user = new ApplicationUser

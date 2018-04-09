@@ -303,6 +303,7 @@ namespace PlatformaBrowaru.Tests
 
             Assert.False(resultValue.ErrorOccured);
         }
+
         [Fact]
         public async void ShouldLogoutWithSuccess()
         {

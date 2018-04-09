@@ -55,6 +55,12 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             return await SaveAsync();
         }
 
+        public IEnumerable<ApplicationUser> GetAll()
+        {
+            var result = _dbContext.Users.OrderBy(p => p.Id).ToList();
+            return result;
+        }
+
         public async Task<bool> SaveAsync()
         {
             return await _dbContext.SaveChangesAsync() > 0;

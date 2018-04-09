@@ -16,5 +16,6 @@ namespace PlatformaBrowaru.Services.Services.Interfaces
         ResponseDto<GetUserDto> GetUser(long id);
         Task<ResponseDto<LoginDto>> GenerateTokensAsync(ApplicationUser user);
         ResponseDto<BaseModelDto> ActivateUser(Guid guid);
+        ResponseDto<GetUserListDto> GetAllUsers();
     }
 }

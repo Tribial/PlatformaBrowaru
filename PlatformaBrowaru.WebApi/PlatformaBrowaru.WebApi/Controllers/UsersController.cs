@@ -110,6 +110,16 @@ namespace PlatformaBrowaru.WebApi.Controllers
             return Ok(result);
         }
 
+        [HttpGet("List")]
+        public IActionResult GetAllUsers()
+        {
+            var result = _userService.GetAllUsers();
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
 
+            return Ok(result);
+        }
     }
 }

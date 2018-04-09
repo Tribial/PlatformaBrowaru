@@ -247,5 +247,29 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             return result;
         }
+
+        public ResponseDto<GetUserListDto> GetAllUsers()
+        {
+            var user = _userRepository.GetAll();
+            var result = new ResponseDto<GetUserListDto>
+            {
+                Errors = new List<string>(),
+                Object = new GetUserListDto()
+            };
+
+            foreach(var element in user)
+            {
+                var userObject = new GetUserDto()
+                {
+                    FirstName = element.FirstName,
+                    LastName = element.LastName,
+                    Email = element.Email,
+                    Username = element.Username
+                };
+
+                result.Object.ListUsers.Add(userObject);
+            }
+            return result;
+        }
     }
 }

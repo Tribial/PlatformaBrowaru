@@ -185,11 +185,11 @@ namespace PlatformaBrowaru.Services.Services.Services
             };
             
             var userRepository = await _userRepository.Insert(user);
-            /*if (!userRepository)
+            if (!userRepository)
             {
                 result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później");
                 return result;
-            }*/
+            }
 
             
             await _emailService.SendEmail(user.Email, "Platforma Browaru - aktywacja", $"Witaj {user.FirstName}!\n Aby aktywować swoje konto kliknij w poniższy link:\n http://localhost:18831/Users/Activate/" + user.Guid);

@@ -163,7 +163,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             if (userWithSameUsernmeAlreadyExists)
             {
                 result.Errors.Add("Podany przez ciebie login już istnieje");
-                return result;
+                
             }
 
             var userWithSameEmailAlreadyExists = _userRepository.Exists(x => x.Email == registerModel.Email);

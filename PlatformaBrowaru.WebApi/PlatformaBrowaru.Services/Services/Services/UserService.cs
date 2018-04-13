@@ -163,7 +163,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             if (userWithSameUsernmeAlreadyExists)
             {
                 result.Errors.Add("Podany przez ciebie login już istnieje");
-                return result;
+                
             }
 
             var userWithSameEmailAlreadyExists = _userRepository.Exists(x => x.Email == registerModel.Email);
@@ -245,6 +245,30 @@ namespace PlatformaBrowaru.Services.Services.Services
             user.IsVerified = true;
             _userRepository.Save();
 
+            return result;
+        }
+
+        public ResponseDto<GetUserListDto> GetAllUsers()
+        {
+            var user = _userRepository.GetAll();
+            var result = new ResponseDto<GetUserListDto>
+            {
+                Errors = new List<string>(),
+                Object = new GetUserListDto()
+            };
+
+            foreach(var element in user)
+            {
+                var userObject = new GetUserDto()
+                {
+                    FirstName = element.FirstName,
+                    LastName = element.LastName,
+                    Email = element.Email,
+                    Username = element.Username
+                };
+
+                result.Object.ListUsers.Add(userObject);
+            }
             return result;
         }
     }

@@ -397,6 +397,7 @@ namespace PlatformaBrowaru.Tests
             controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+
             repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).
                 Returns(
                     Task.FromResult(
@@ -495,7 +496,6 @@ namespace PlatformaBrowaru.Tests
         [Fact]
         public void ShouldReturnErrorIfUserAlreadyActivated()
         {
-            Guid guid = new Guid();
             var user = new ApplicationUser
             {
                 Email = "jan.kowalski@mail.com",
@@ -507,7 +507,7 @@ namespace PlatformaBrowaru.Tests
                 IsVerified = true,
                 PasswordHash = "abc".ToHash(),
                 Username = "jkowalski",
-                Guid = guid
+                Guid = new Guid()
             };
 
             var repository = new Mock<IUserRepository>();

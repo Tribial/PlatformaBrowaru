@@ -12,7 +12,7 @@ using PlatformaBrowaru.Share.Models;
 namespace PlatformaBrowaru.WebApi.Controllers
 {
     [Route("Users")]
-    //[Authorize]
+    [Authorize]
     public class UsersController : BaseController
     {
         private readonly IUserService _userService;
@@ -22,6 +22,7 @@ namespace PlatformaBrowaru.WebApi.Controllers
             _userService = userService;
         }
 
+        [AllowAnonymous]
         [HttpPost("Login")]
         public async Task<IActionResult> LoginAsync([FromBody]LoginBindingModel loginModel)
         {
@@ -39,15 +40,6 @@ namespace PlatformaBrowaru.WebApi.Controllers
             return Ok(result);
 
         }
-
-        /*[AllowAnonymous]
-        [HttpPost("Test")]
-        public async Task<IActionResult> Testing()
-        {
-            await _emailService.SendEmail("damian5996@wp.pl", "Testowanie",
-                "Tutaj będzie link aktywacyjny");
-            return Ok();
-        }*/
         
         [AllowAnonymous]
         [HttpPost("Register")]

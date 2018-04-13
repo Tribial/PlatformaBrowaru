@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PlatformaBrowaru.Data\PlatformaBrowaru.Data.csproj" />
     <ProjectReference Include="..\PlatformaBrowaru.Share\PlatformaBrowaru.Share.csproj" />
   </ItemGroup>

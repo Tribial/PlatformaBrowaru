@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using PlatformaBrowaru.Data.Repository.Interfaces;
 using PlatformaBrowaru.Services.Services.Interfaces;
@@ -269,6 +270,42 @@ namespace PlatformaBrowaru.Services.Services.Services
 
                 result.Object.ListUsers.Add(userObject);
             }
+            return result;
+        }
+
+        public ResponseDto<BaseModelDto> DeleteUser(long id)
+        {
+            var result = new ResponseDto<BaseModelDto>
+            {
+                Errors = new List<string>()
+            };
+            var userToDelete = _userRepository.Get(x => x.Id == id);
+            if (userToDelete == null)
+            {
+                result.Errors.Add("userToDelete jest nullem xd ");
+                return result;
+            }
+            userToDelete.IsDeleted = true;
+
+            if (!_userRepository.Exists(u => u.Id == id))
+            {
+                result.Errors.Add("Taki użytkownik nie istnieje");
+                return result;
+            }
+            var token = _userRepository.GetRefreshTokenAsync(id);
+
+            if (token == null)
+            {
+                result.Errors.Add("Nie jesteś zalogowany");
+                return result;
+            }
+            var userRepository = _userRepository.Save();
+            if (!userRepository)
+            {
+                result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później");
+                return result;
+            }
+
             return result;
         }
     }

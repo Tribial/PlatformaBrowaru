@@ -360,5 +360,47 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             return result;
         }
+
+        public ResponseDto<BaseModelDto> ChangePassword(long id, ChangePasswordBindingModel changePasswordModel)
+        {
+            var result = new ResponseDto<BaseModelDto>
+            {
+                Errors = new List<string>()
+            };
+
+            var user = _userRepository.Get(x => x.Id == id);
+            if (user == null)
+            {
+                result.Errors.Add("Coś poszło nie tak. Użytkownik nie istnieje.");
+                return result;
+            }
+            var token = _userRepository.GetRefreshTokenAsync(id).Result;
+
+            if (token == null)
+            {
+                result.Errors.Add("Nie jesteś zalogowany");
+                return result;
+            }
+            if (changePasswordModel.Password.ToHash() != user.PasswordHash)
+            {
+                result.Errors.Add("Twoje aktualne hasło jest nieprawidłowe");
+                return result;
+            }
+            if (changePasswordModel.NewPassword != changePasswordModel.ConfirmNewPassword)
+            {
+                result.Errors.Add("Wartości w polu Nowe Hasło i Potwierdź Hasło muszą być takie same");
+                return result;
+            }
+            user.PasswordHash = changePasswordModel.NewPassword.ToHash();
+
+            var userRepository = _userRepository.Save();
+            if (!userRepository)
+            {
+                result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później");
+                return result;
+            }
+
+            return result;
+        }
     }
 }

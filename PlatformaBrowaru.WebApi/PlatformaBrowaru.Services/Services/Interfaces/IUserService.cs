@@ -19,5 +19,6 @@ namespace PlatformaBrowaru.Services.Services.Interfaces
         ResponseDto<GetUserListDto> GetAllUsers();
         ResponseDto<BaseModelDto> DeleteUser(long id);
         ResponseDto<BaseModelDto> ChangeEmail(long id, ChangeEmailBindingModel changeEmailModel);
+        ResponseDto<BaseModelDto> ChangePassword(long id, ChangePasswordBindingModel changePasswordModel);
     }
 }

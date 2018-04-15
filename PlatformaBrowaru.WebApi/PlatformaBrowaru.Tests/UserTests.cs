@@ -1113,5 +1113,289 @@ namespace PlatformaBrowaru.Tests
             Assert.True(changeEmailResult.ErrorOccured);
             Assert.Contains("Nieprawidłowe hasło", changeEmailResult.Errors);
         }
+
+        [Fact]
+        public void ShouldChangePasswordWithSuccess()
+        {
+            var changePasswordModel = new ChangePasswordBindingModel
+            {
+                Password = "MyFavouritePassword",
+                NewPassword = "ItsMyNewFavouritePassword!",
+                ConfirmNewPassword = "ItsMyNewFavouritePassword!"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "MyFavouritePassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Save()).Returns(true);
+
+            var resultRaw = controller.ChangePassword(changePasswordModel);
+            var result = Assert.IsType<OkObjectResult>(resultRaw);
+            var changePasswordResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.False(changePasswordResult.ErrorOccured);
+        }
+
+        [Fact]
+        public void ShouldChangePasswordFailedIfCurrentPasswordIsNotCorrect()
+        {
+            var changePasswordModel = new ChangePasswordBindingModel
+            {
+                Password = "MyFavouritePassword123",
+                NewPassword = "ItsMyNewFavouritePassword!",
+                ConfirmNewPassword = "ItsMyNewFavouritePassword!"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "MyFavouritePassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Save()).Returns(true);
+
+            var resultRaw = controller.ChangePassword(changePasswordModel);
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var changePasswordResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(changePasswordResult.ErrorOccured);
+            Assert.Contains("Twoje aktualne hasło jest nieprawidłowe", changePasswordResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldChangePasswordFailedIfPasswordsDoNotMatch()
+        {
+            var changePasswordModel = new ChangePasswordBindingModel
+            {
+                Password = "MyFavouritePassword",
+                NewPassword = "ItsMyNewFavouritePassword!",
+                ConfirmNewPassword = "ItsMyNewFavouritePassword!heh"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "MyFavouritePassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Save()).Returns(true);
+
+            var resultRaw = controller.ChangePassword(changePasswordModel);
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var changePasswordResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(changePasswordResult.ErrorOccured);
+            Assert.Contains("Wartości w polu Nowe Hasło i Potwierdź Hasło muszą być takie same", changePasswordResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldChangePasswordFailedIfCouldNotGetUser()
+        {
+            var changePasswordModel = new ChangePasswordBindingModel
+            {
+                Password = "MyFavouritePassword",
+                NewPassword = "ItsMyNewFavouritePassword!",
+                ConfirmNewPassword = "ItsMyNewFavouritePassword!"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "MyFavouritePassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns((ApplicationUser)null);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Save()).Returns(true);
+
+            var resultRaw = controller.ChangePassword(changePasswordModel);
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var changePasswordResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(changePasswordResult.ErrorOccured);
+            Assert.Contains("Coś poszło nie tak. Użytkownik nie istnieje.", changePasswordResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldChangePasswordFailedIfCouldNotSaveChanges()
+        {
+            var changePasswordModel = new ChangePasswordBindingModel
+            {
+                Password = "MyFavouritePassword",
+                NewPassword = "ItsMyNewFavouritePassword!",
+                ConfirmNewPassword = "ItsMyNewFavouritePassword!"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "MyFavouritePassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Save()).Returns(false);
+
+            var resultRaw = controller.ChangePassword(changePasswordModel);
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var changePasswordResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(changePasswordResult.ErrorOccured);
+            Assert.Contains("Coś poszło nie tak, spróbuj ponownie później", changePasswordResult.Errors);
+        }
     }
 }

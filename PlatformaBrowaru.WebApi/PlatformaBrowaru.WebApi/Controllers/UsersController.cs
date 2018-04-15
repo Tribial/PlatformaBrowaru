@@ -146,5 +146,21 @@ namespace PlatformaBrowaru.WebApi.Controllers
 
             return Ok(result);
         }
+
+        [HttpPatch("ChangePassword")]
+        public IActionResult ChangePassword([FromBody]ChangePasswordBindingModel changePasswordModel)
+        {
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = _userService.ChangePassword(userId, changePasswordModel);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
     }
 }

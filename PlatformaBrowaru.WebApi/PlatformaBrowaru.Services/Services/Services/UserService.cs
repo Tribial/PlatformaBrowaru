@@ -276,7 +276,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             return result;
         }
 
-        public ResponseDto<BaseModelDto> DeleteUser(long id)
+        public ResponseDto<BaseModelDto> DeleteUser(long id, string password)
         {
             var result = new ResponseDto<BaseModelDto>
             {
@@ -290,6 +290,12 @@ namespace PlatformaBrowaru.Services.Services.Services
             }
 
             var userToDelete = _userRepository.Get(x => x.Id == id);
+
+            if (password.ToHash() != userToDelete.PasswordHash)
+            {
+                result.Errors.Add("Nieprawidłowe hasło");
+                return result;
+            }
             userToDelete.IsDeleted = true;
 
             var token = _userRepository.GetRefreshTokenAsync(id).Result;

@@ -531,6 +531,7 @@ namespace PlatformaBrowaru.Tests
         [Fact]
         public void ShouldDeleteUserWithSuccess()
         {
+            var password = "abc";
             var user = new ApplicationUser
             {
                 Email = "jan.kowalski@mail.com",
@@ -572,7 +573,7 @@ namespace PlatformaBrowaru.Tests
             );
             repository.Setup(x => x.Save()).Returns(true);
 
-            var resultRaw = controller.DeleteUser();
+            var resultRaw = controller.DeleteUser(password);
             var result = Assert.IsType<OkObjectResult>(resultRaw);
             var deleteUserResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
 
@@ -580,8 +581,61 @@ namespace PlatformaBrowaru.Tests
         }
 
         [Fact]
+        public void ShouldDeleteUserFailedIfWrongPassword()
+        {
+            var password = "abcdeeee";
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abc".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Save()).Returns(true);
+
+            var resultRaw = controller.DeleteUser(password);
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var deleteUserResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(deleteUserResult.ErrorOccured);
+            Assert.Contains("Nieprawidłowe hasło", deleteUserResult.Errors);
+        }
+        [Fact]
         public void ShouldDeleteUserFailedAndReturnErrorIfUserNotExist()
         {
+            var password = "abc";
             var user = new ApplicationUser
             {
                 Email = "jan.kowalski@mail.com",
@@ -612,7 +666,7 @@ namespace PlatformaBrowaru.Tests
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
 
-            var resultRaw = controller.DeleteUser();
+            var resultRaw = controller.DeleteUser(password);
             var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
             var deleteUserResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
 
@@ -623,6 +677,7 @@ namespace PlatformaBrowaru.Tests
         [Fact]
         public void ShouldDeleteUserFailedAndReturnErrorIfUserNotLogged()
         {
+            var password = "abc";
             var user = new ApplicationUser
             {
                 Email = "jan.kowalski@mail.com",
@@ -656,7 +711,7 @@ namespace PlatformaBrowaru.Tests
             repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>()))
                 .Returns(Task.FromResult((RefreshToken) null));
 
-            var resultRaw = controller.DeleteUser();
+            var resultRaw = controller.DeleteUser(password);
             var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
             var deleteUserResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
 
@@ -667,6 +722,7 @@ namespace PlatformaBrowaru.Tests
         [Fact]
         public void ShouldDeleteUserFailedAndReturnErrorIfCouldNotSaveChanges()
         {
+            var password = "abc";
             var user = new ApplicationUser
             {
                 Email = "jan.kowalski@mail.com",
@@ -708,7 +764,7 @@ namespace PlatformaBrowaru.Tests
             );
             repository.Setup(x => x.Save()).Returns(false);
 
-            var resultRaw = controller.DeleteUser();
+            var resultRaw = controller.DeleteUser(password);
             var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
             var deleteUserResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
 

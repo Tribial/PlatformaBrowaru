@@ -130,5 +130,21 @@ namespace PlatformaBrowaru.WebApi.Controllers
 
             return Ok(result);
         }
+
+        [HttpPatch("ChangeEmail")]
+        public IActionResult ChangeEmail([FromBody]ChangeEmailBindingModel changeEmailModel)
+        {
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = _userService.ChangeEmail(userId, changeEmailModel);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
     }
 }

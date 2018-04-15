@@ -45,7 +45,7 @@ namespace PlatformaBrowaru.Tests
             };
 
             var repository = new Mock<IUserRepository>();
-            var configuration =  new Mock<IConfigurationService>();
+            var configuration = new Mock<IConfigurationService>();
             var emailService = new Mock<IEmailService>();
             var service = new UserService(repository.Object, configuration.Object, emailService.Object);
             var controller = new UsersController(service);
@@ -221,7 +221,7 @@ namespace PlatformaBrowaru.Tests
                 PasswordHash = "abc".ToHash(),
                 Username = "jkowalski",
             };
-            
+
 
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
@@ -237,10 +237,11 @@ namespace PlatformaBrowaru.Tests
             var getUserResult = Assert.IsAssignableFrom<ResponseDto<GetUserDto>>(result.Value);
 
             Assert.False(getUserResult.ErrorOccured);
+            Assert.NotNull(getUserResult.Object);
         }
 
         [Fact]
-        public void ShouldReturnErrorIfUserNotExist()
+        public void ShouldGetUserFailedAndReturnErrorIfUserNotExist()
         {
             var guid = new Guid();
             var user = new ApplicationUser
@@ -272,7 +273,7 @@ namespace PlatformaBrowaru.Tests
 
             Assert.True(getUserResult.ErrorOccured);
             Assert.Contains("Coś poszło nie tak. Użytkownik o podanym Id nie istnieje.", getUserResult.Errors);
-            
+
         }
 
         [Fact]
@@ -297,7 +298,7 @@ namespace PlatformaBrowaru.Tests
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
             repository.Setup(x => x.Insert(It.IsAny<ApplicationUser>())).Returns(Task.FromResult(true));
 
-            
+
             var result = await controller.RegisterAsync(registerModel);
             var okResult = Assert.IsType<OkObjectResult>(result);
             var resultValue = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(okResult.Value);
@@ -324,7 +325,7 @@ namespace PlatformaBrowaru.Tests
             var service = new UserService(repository.Object, configuration.Object, emailService.Object);
             var controller = new UsersController(service);
 
-            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);           
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
 
 
             var result = await controller.RegisterAsync(registerModel);
@@ -381,7 +382,7 @@ namespace PlatformaBrowaru.Tests
                 PasswordHash = "VeryStrongPassword".ToHash(),
                 Username = "jkowalski"
             };
-        
+
             var repository = new Mock<IUserRepository>();
             var configuration = new Mock<IConfigurationService>();
             var emailService = new Mock<IEmailService>();
@@ -398,16 +399,15 @@ namespace PlatformaBrowaru.Tests
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
 
-            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).
-                Returns(
-                    Task.FromResult(
-                        new RefreshToken
-                        {
-                            Token = "AnyToken",
-                            TokenExpirationDate = DateTime.Now
-                        }
-                    )
-                );
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
             repository.Setup(x => x.RemoveRefreshTokenAsync(It.IsAny<RefreshToken>())).Returns(Task.FromResult(true));
 
             var resultRaw = await controller.LogoutAsync();
@@ -445,10 +445,11 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
-            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(Task.FromResult((RefreshToken)null));
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>()))
+                .Returns(Task.FromResult((RefreshToken) null));
             repository.Setup(x => x.RemoveRefreshTokenAsync(It.IsAny<RefreshToken>())).Returns(Task.FromResult(true));
 
             var resultRaw = await controller.LogoutAsync();
@@ -525,6 +526,592 @@ namespace PlatformaBrowaru.Tests
 
             Assert.True(activateUserResult.ErrorOccured);
             Assert.Contains("Twoje konto zostało już aktywowane", activateUserResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldDeleteUserWithSuccess()
+        {
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abc".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Save()).Returns(true);
+
+            var resultRaw = controller.DeleteUser();
+            var result = Assert.IsType<OkObjectResult>(resultRaw);
+            var deleteUserResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.False(deleteUserResult.ErrorOccured);
+        }
+
+        [Fact]
+        public void ShouldDeleteUserFailedAndReturnErrorIfUserNotExist()
+        {
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abc".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+
+            var resultRaw = controller.DeleteUser();
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var deleteUserResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(deleteUserResult.ErrorOccured);
+            Assert.Contains("Coś poszło nie tak. Użytkownik nie istnieje.", deleteUserResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldDeleteUserFailedAndReturnErrorIfUserNotLogged()
+        {
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abc".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>()))
+                .Returns(Task.FromResult((RefreshToken) null));
+
+            var resultRaw = controller.DeleteUser();
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var deleteUserResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(deleteUserResult.ErrorOccured);
+            Assert.Contains("Nie jesteś zalogowany", deleteUserResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldDeleteUserFailedAndReturnErrorIfCouldNotSaveChanges()
+        {
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abc".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Save()).Returns(false);
+
+            var resultRaw = controller.DeleteUser();
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var deleteUserResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(deleteUserResult.ErrorOccured);
+            Assert.Contains("Coś poszło nie tak, spróbuj ponownie później", deleteUserResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldChangeEmailWithSuccess()
+        {
+            var changeEmailModel = new ChangeEmailBindingModel
+            {
+                NewEmail = "janek69@gmail.com",
+                ConfirmNewEmail = "janek69@gmail.com",
+                Password = "abcPassword"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abcPassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+            repository.Setup(x => x.Save()).Returns(true);
+
+            var resultRaw = controller.ChangeEmail(changeEmailModel);
+            var result = Assert.IsType<OkObjectResult>(resultRaw);
+            var changeEmailResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.False(changeEmailResult.ErrorOccured);
+        }
+
+        [Fact]
+        public void ShouldChangeEmailFailedIfThisEmailAlreadyExist()
+        {
+            var changeEmailModel = new ChangeEmailBindingModel
+            {
+                NewEmail = "janek69@gmail.com",
+                ConfirmNewEmail = "janek69@gmail.com",
+                Password = "abcPassword"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abcPassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.Save()).Returns(true);
+
+            var resultRaw = controller.ChangeEmail(changeEmailModel);
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var changeEmailResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(changeEmailResult.ErrorOccured);
+            Assert.Contains("Podany przez ciebie email już istnieje", changeEmailResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldChangeEmailFailedIfUserNotLoggedIn()
+        {
+            var changeEmailModel = new ChangeEmailBindingModel
+            {
+                NewEmail = "janek69@gmail.com",
+                ConfirmNewEmail = "janek69@gmail.com",
+                Password = "abcPassword"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abcPassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>()))
+                .Returns(Task.FromResult((RefreshToken) null));
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+            repository.Setup(x => x.Save()).Returns(true);
+
+            var resultRaw = controller.ChangeEmail(changeEmailModel);
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var changeEmailResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(changeEmailResult.ErrorOccured);
+            Assert.Contains("Nie jesteś zalogowany", changeEmailResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldChangeEmailFailedIfCouldNotGetUser()
+        {
+            var changeEmailModel = new ChangeEmailBindingModel
+            {
+                NewEmail = "janek69@gmail.com",
+                ConfirmNewEmail = "janek69@gmail.com",
+                Password = "abcPassword"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abcPassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns((ApplicationUser) null);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+            repository.Setup(x => x.Save()).Returns(true);
+
+            var resultRaw = controller.ChangeEmail(changeEmailModel);
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var changeEmailResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(changeEmailResult.ErrorOccured);
+            Assert.Contains("Coś poszło nie tak. Użytkownik nie istnieje.", changeEmailResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldChangeEmailFailedIfCouldNotSaveChanges()
+        {
+            var changeEmailModel = new ChangeEmailBindingModel
+            {
+                NewEmail = "janek69@gmail.com",
+                ConfirmNewEmail = "janek69@gmail.com",
+                Password = "abcPassword"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abcPassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+            repository.Setup(x => x.Save()).Returns(false);
+
+            var resultRaw = controller.ChangeEmail(changeEmailModel);
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var changeEmailResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(changeEmailResult.ErrorOccured);
+            Assert.Contains("Coś poszło nie tak, spróbuj ponownie później", changeEmailResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldChangeEmailFailedIfEmailsDoNotMatch()
+        {
+            var changeEmailModel = new ChangeEmailBindingModel
+            {
+                NewEmail = "janek69@gmail.com",
+                ConfirmNewEmail = "NotNewEmail",
+                Password = "abcPassword"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abcPassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+            repository.Setup(x => x.Save()).Returns(true);
+
+            var resultRaw = controller.ChangeEmail(changeEmailModel);
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var changeEmailResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(changeEmailResult.ErrorOccured);
+            Assert.Contains("Emaile się różnią", changeEmailResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldChangeEmailFailedIfPasswordIsNotCorrect()
+        {
+            var changeEmailModel = new ChangeEmailBindingModel
+            {
+                NewEmail = "janek69@gmail.com",
+                ConfirmNewEmail = "janek69@gmail.com",
+                Password = "MyFavouritePassword"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "abcPassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
+                Task.FromResult(
+                    new RefreshToken
+                    {
+                        Token = "AnyToken",
+                        TokenExpirationDate = DateTime.Now
+                    }
+                )
+            );
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+            repository.Setup(x => x.Save()).Returns(true);
+
+            var resultRaw = controller.ChangeEmail(changeEmailModel);
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var changeEmailResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(changeEmailResult.ErrorOccured);
+            Assert.Contains("Nieprawidłowe hasło", changeEmailResult.Errors);
         }
     }
 }

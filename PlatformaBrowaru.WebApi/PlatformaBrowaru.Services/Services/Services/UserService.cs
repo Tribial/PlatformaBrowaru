@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using PlatformaBrowaru.Data.Repository.Interfaces;
 using PlatformaBrowaru.Services.Services.Interfaces;
@@ -20,7 +21,8 @@ namespace PlatformaBrowaru.Services.Services.Services
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
 
-        public UserService(IUserRepository userRepository, IConfigurationService configurationService, IEmailService emailService)
+        public UserService(IUserRepository userRepository, IConfigurationService configurationService,
+            IEmailService emailService)
         {
             _userRepository = userRepository;
             _configurationService = configurationService;
@@ -163,7 +165,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             if (userWithSameUsernmeAlreadyExists)
             {
                 result.Errors.Add("Podany przez ciebie login już istnieje");
-                
+
             }
 
             var userWithSameEmailAlreadyExists = _userRepository.Exists(x => x.Email == registerModel.Email);
@@ -183,7 +185,7 @@ namespace PlatformaBrowaru.Services.Services.Services
                 CreatedAt = DateTime.Now,
                 Guid = Guid.NewGuid()
             };
-            
+
             var userRepository = await _userRepository.Insert(user);
             if (!userRepository)
             {
@@ -191,8 +193,10 @@ namespace PlatformaBrowaru.Services.Services.Services
                 return result;
             }
 
-            
-            await _emailService.SendEmail(user.Email, "Platforma Browaru - aktywacja", $"Witaj {user.FirstName}!\n Aby aktywować swoje konto kliknij w poniższy link:\n http://localhost:18831/Users/Activate/" + user.Guid);
+
+            await _emailService.SendEmail(user.Email, "Platforma Browaru - aktywacja",
+                $"Witaj {user.FirstName}!\n Aby aktywować swoje konto kliknij w poniższy link:\n http://localhost:18831/Users/Activate/" +
+                user.Guid);
 
             return result;
         }
@@ -207,7 +211,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             };
 
             var userWithThisIdExist = _userRepository.Exists(x => x.Id == id);
-            
+
             if (!userWithThisIdExist)
             {
                 result.Errors.Add("Coś poszło nie tak. Użytkownik o podanym Id nie istnieje.");
@@ -234,14 +238,14 @@ namespace PlatformaBrowaru.Services.Services.Services
                 result.Errors.Add("Twoje konto zostało już aktywowane");
                 return result;
             }
-            
+
             var userWithThisGuidExist = _userRepository.Exists(x => x.Guid == guid);
             if (!userWithThisGuidExist)
             {
-                result.Errors.Add("Coś poszło nie tak. Użytkownik o podanym Guid nie istnieje.");
+                result.Errors.Add("Coś poszło nie tak. Użytkownik nie istnieje.");
                 return result;
             }
-            
+
             user.IsVerified = true;
             _userRepository.Save();
 
@@ -257,7 +261,7 @@ namespace PlatformaBrowaru.Services.Services.Services
                 Object = new GetUserListDto()
             };
 
-            foreach(var element in user)
+            foreach (var element in user)
             {
                 var userObject = new GetUserDto()
                 {
@@ -269,6 +273,139 @@ namespace PlatformaBrowaru.Services.Services.Services
 
                 result.Object.ListUsers.Add(userObject);
             }
+            return result;
+        }
+
+        public ResponseDto<BaseModelDto> DeleteUser(long id, string password)
+        {
+            var result = new ResponseDto<BaseModelDto>
+            {
+                Errors = new List<string>()
+            };
+            var userExists = _userRepository.Exists(x => x.Id == id);
+            if (!userExists)
+            {
+                result.Errors.Add("Coś poszło nie tak. Użytkownik nie istnieje.");
+                return result;
+            }
+
+            var userToDelete = _userRepository.Get(x => x.Id == id);
+
+            if (password.ToHash() != userToDelete.PasswordHash)
+            {
+                result.Errors.Add("Nieprawidłowe hasło");
+                return result;
+            }
+            userToDelete.IsDeleted = true;
+
+            var token = _userRepository.GetRefreshTokenAsync(id).Result;
+
+            if (token == null)
+            {
+                result.Errors.Add("Nie jesteś zalogowany");
+                return result;
+            }
+            var userRepository = _userRepository.Save();
+            if (!userRepository)
+            {
+                result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później");
+                return result;
+            }
+
+            return result;
+        }
+
+        public ResponseDto<BaseModelDto> ChangeEmail(long id, ChangeEmailBindingModel changeEmailModel)
+        {
+            var result = new ResponseDto<BaseModelDto>
+            {
+                Errors = new List<string>()
+            };
+            
+            var user = _userRepository.Get(x => x.Id == id);
+            if (user == null)
+            {
+                result.Errors.Add("Coś poszło nie tak. Użytkownik nie istnieje.");
+                return result;
+            }
+            var token = _userRepository.GetRefreshTokenAsync(id).Result;
+
+            if (token == null)
+            {
+                result.Errors.Add("Nie jesteś zalogowany");
+                return result;
+            }
+            if (changeEmailModel.NewEmail != changeEmailModel.ConfirmNewEmail)
+            {
+                result.Errors.Add("Emaile się różnią");
+                return result;
+            }
+            if (changeEmailModel.Password.ToHash() != user.PasswordHash)
+            {
+                result.Errors.Add("Nieprawidłowe hasło");
+                return result;
+            }
+            var userWithThisEmailExists = _userRepository.Exists(x => x.Email == changeEmailModel.NewEmail);
+            if (userWithThisEmailExists)
+            {
+                result.Errors.Add("Podany przez ciebie email już istnieje");
+                return result;
+            }
+            user.Email = changeEmailModel.NewEmail;
+            user.IsVerified = false;
+            var userRepository = _userRepository.Save();
+            if (!userRepository)
+            {
+                result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później");
+                return result;
+            }
+
+            _emailService.SendEmail(user.Email, "Platforma Browaru - aktywacja",
+                $"Witaj {user.FirstName}!\n Aby aktywować swoje konto kliknij w poniższy link:\n http://localhost:18831/Users/Activate/" +
+                user.Guid);
+
+            return result;
+        }
+
+        public ResponseDto<BaseModelDto> ChangePassword(long id, ChangePasswordBindingModel changePasswordModel)
+        {
+            var result = new ResponseDto<BaseModelDto>
+            {
+                Errors = new List<string>()
+            };
+
+            var user = _userRepository.Get(x => x.Id == id);
+            if (user == null)
+            {
+                result.Errors.Add("Coś poszło nie tak. Użytkownik nie istnieje.");
+                return result;
+            }
+            var token = _userRepository.GetRefreshTokenAsync(id).Result;
+
+            if (token == null)
+            {
+                result.Errors.Add("Nie jesteś zalogowany");
+                return result;
+            }
+            if (changePasswordModel.Password.ToHash() != user.PasswordHash)
+            {
+                result.Errors.Add("Twoje aktualne hasło jest nieprawidłowe");
+                return result;
+            }
+            if (changePasswordModel.NewPassword != changePasswordModel.ConfirmNewPassword)
+            {
+                result.Errors.Add("Wartości w polu Nowe Hasło i Potwierdź Hasło muszą być takie same");
+                return result;
+            }
+            user.PasswordHash = changePasswordModel.NewPassword.ToHash();
+
+            var userRepository = _userRepository.Save();
+            if (!userRepository)
+            {
+                result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później");
+                return result;
+            }
+
             return result;
         }
     }

@@ -17,5 +17,8 @@ namespace PlatformaBrowaru.Services.Services.Interfaces
         Task<ResponseDto<LoginDto>> GenerateTokensAsync(ApplicationUser user);
         ResponseDto<BaseModelDto> ActivateUser(Guid guid);
         ResponseDto<GetUserListDto> GetAllUsers();
+        ResponseDto<BaseModelDto> DeleteUser(long id, string password);
+        ResponseDto<BaseModelDto> ChangeEmail(long id, ChangeEmailBindingModel changeEmailModel);
+        ResponseDto<BaseModelDto> ChangePassword(long id, ChangePasswordBindingModel changePasswordModel);
     }
 }

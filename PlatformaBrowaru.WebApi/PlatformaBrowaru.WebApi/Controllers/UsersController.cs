@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlatformaBrowaru.Services.Services.Interfaces;
 using PlatformaBrowaru.Share.BindingModels;
+using PlatformaBrowaru.Share.Models;
 
 namespace PlatformaBrowaru.WebApi.Controllers
 {
@@ -103,6 +104,54 @@ namespace PlatformaBrowaru.WebApi.Controllers
         public IActionResult GetAllUsers()
         {
             var result = _userService.GetAllUsers();
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpDelete("Delete")]
+        public IActionResult DeleteUser([FromBody]string password)
+        {
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = _userService.DeleteUser(userId, password);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPatch("ChangeEmail")]
+        public IActionResult ChangeEmail([FromBody]ChangeEmailBindingModel changeEmailModel)
+        {
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = _userService.ChangeEmail(userId, changeEmailModel);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPatch("ChangePassword")]
+        public IActionResult ChangePassword([FromBody]ChangePasswordBindingModel changePasswordModel)
+        {
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = _userService.ChangePassword(userId, changePasswordModel);
             if (result.ErrorOccured)
             {
                 return BadRequest(result);

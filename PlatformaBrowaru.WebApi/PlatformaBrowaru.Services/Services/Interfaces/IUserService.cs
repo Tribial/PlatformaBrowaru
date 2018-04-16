@@ -20,5 +20,6 @@ namespace PlatformaBrowaru.Services.Services.Interfaces
         ResponseDto<BaseModelDto> DeleteUser(long id, string password);
         ResponseDto<BaseModelDto> ChangeEmail(long id, ChangeEmailBindingModel changeEmailModel);
         ResponseDto<BaseModelDto> ChangePassword(long id, ChangePasswordBindingModel changePasswordModel);
+        Task<ResponseDto<BaseModelDto>> EditUserProfile(long userId, UserProfileBindingModel userProfile);
     }
 }

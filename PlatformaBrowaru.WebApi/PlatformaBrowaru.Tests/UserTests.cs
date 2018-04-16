@@ -6,10 +6,13 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.XpressionMapper.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using PlatformaBrowaru.Data.Repository.Interfaces;
+using PlatformaBrowaru.Services;
 using PlatformaBrowaru.Services.Services.Interfaces;
 using PlatformaBrowaru.Services.Services.Services;
 using PlatformaBrowaru.Share.BindingModels;
@@ -1452,6 +1455,102 @@ namespace PlatformaBrowaru.Tests
 
             Assert.True(changePasswordResult.ErrorOccured);
             Assert.Contains("Coś poszło nie tak, spróbuj ponownie później", changePasswordResult.Errors);
+        }
+
+        [Fact]
+        public void ShouldEditUserProfileSucessful()
+        {
+            var userProfile = new UserProfileBindingModel()
+            {
+                FirstName = "Jan",
+                LastName = "Nowak",
+                Username = "jnowak"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "MyFavouritePassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
+            repository.Setup(x => x.Update(It.IsAny<ApplicationUser>())).Returns(Task.FromResult(true));
+
+            var resultRaw = controller.EditUserProfile(user.Id, userProfile).Result;
+            var result = Assert.IsType<OkObjectResult>(resultRaw);
+            var edituserProfileResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.False(edituserProfileResult.ErrorOccured);
+        }
+
+        [Fact]
+        public void ShouldNotEditUserProfileOnExistingUsername()
+        {
+            var userProfile = new UserProfileBindingModel()
+            {
+                FirstName = "Jan",
+                LastName = "Nowak",
+                Username = "jnowak"
+            };
+            var user = new ApplicationUser
+            {
+                Email = "jan.kowalski@mail.com",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                FirstName = "Jan",
+                LastName = "Kowalski",
+                Id = 1,
+                IsDeleted = false,
+                IsVerified = true,
+                PasswordHash = "MyFavouritePassword".ToHash(),
+                Username = "jkowalski",
+                Guid = new Guid()
+            };
+
+            var repository = new Mock<IUserRepository>();
+            var configuration = new Mock<IConfigurationService>();
+            var emailService = new Mock<IEmailService>();
+            var service = new UserService(repository.Object, configuration.Object, emailService.Object);
+            var controller = new UsersController(service);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.GivenName, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Sid, user.Id.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
+
+            repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
+            repository.Setup(x => x.Update(It.IsAny<ApplicationUser>())).Returns(Task.FromResult(true));
+
+            var resultRaw = controller.EditUserProfile(user.Id, userProfile).Result;
+            var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
+            var edituserProfileResult = Assert.IsAssignableFrom<ResponseDto<BaseModelDto>>(result.Value);
+
+            Assert.True(edituserProfileResult.ErrorOccured);
+            Assert.Contains("Ta nazwa użytkownika jest już zajęta", edituserProfileResult.Errors);
         }
     }
 }

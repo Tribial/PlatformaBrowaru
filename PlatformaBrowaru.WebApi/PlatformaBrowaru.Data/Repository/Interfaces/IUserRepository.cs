@@ -18,5 +18,6 @@ namespace PlatformaBrowaru.Data.Repository.Interfaces
         IEnumerable<ApplicationUser> GetAll();
         Task<bool> SaveAsync();
         bool Save();
+        Task<bool> Update(ApplicationUser user);
     }
 }

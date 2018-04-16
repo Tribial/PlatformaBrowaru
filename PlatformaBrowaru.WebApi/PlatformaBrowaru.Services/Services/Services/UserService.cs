@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using PlatformaBrowaru.Data.Repository.Interfaces;
@@ -380,13 +381,7 @@ namespace PlatformaBrowaru.Services.Services.Services
                 result.Errors.Add("Coś poszło nie tak. Użytkownik nie istnieje.");
                 return result;
             }
-            var token = _userRepository.GetRefreshTokenAsync(id).Result;
 
-            if (token == null)
-            {
-                result.Errors.Add("Nie jesteś zalogowany");
-                return result;
-            }
             if (changePasswordModel.Password.ToHash() != user.PasswordHash)
             {
                 result.Errors.Add("Twoje aktualne hasło jest nieprawidłowe");
@@ -407,6 +402,34 @@ namespace PlatformaBrowaru.Services.Services.Services
             }
 
             return result;
+        }
+
+        public async Task<ResponseDto<BaseModelDto>> EditUserProfile(long userId, UserProfileBindingModel userProfile)
+        {
+            var result = new ResponseDto<BaseModelDto>();
+            var usernameExists = _userRepository.Exists(u => u.Username == userProfile.Username);
+
+            if (usernameExists)
+            {
+                result.Errors.Add("Ta nazwa użytkownika jest już zajęta");
+                return result;
+            }
+
+            var user = _userRepository.Get(u => u.Id == userId);
+
+            user.FirstName = userProfile.FirstName;
+            user.LastName = userProfile.LastName;
+            user.Username = userProfile.Username;
+
+            var updateResult = await _userRepository.Update(user);
+
+            if (!updateResult)
+            {
+                result.Errors.Add("Wystąpił nieoczekiwany błąd, spróbuj ponownie później");
+            }
+
+            return result;
+
         }
     }
 }

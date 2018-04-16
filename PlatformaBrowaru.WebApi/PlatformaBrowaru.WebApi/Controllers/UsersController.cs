@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using PlatformaBrowaru.Services.Services.Interfaces;
 using PlatformaBrowaru.Share.BindingModels;
 using PlatformaBrowaru.Share.Models;
+using PlatformaBrowaru.Share.ModelsDto;
 
 namespace PlatformaBrowaru.WebApi.Controllers
 {
@@ -152,6 +153,30 @@ namespace PlatformaBrowaru.WebApi.Controllers
             var userId = Convert.ToInt64(rawUserId);
 
             var result = _userService.ChangePassword(userId, changePasswordModel);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> EditUserProfile(long id, [FromBody] UserProfileBindingModel userProfile)
+        {
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            ResponseDto<BaseModelDto> result;
+            if (userId == id)
+            {
+                result = await _userService.EditUserProfile(id, userProfile);
+            }
+            else
+            {
+                return Unauthorized();
+            }
+
             if (result.ErrorOccured)
             {
                 return BadRequest(result);

@@ -21,6 +21,8 @@ namespace PlatformaBrowaru.Services
 
             var configure = new StartUpConfig(configuration);
             configure.PartOfConfigureServices(services);
+
+            AutoMapperConfiguration();
         }
 
         public static void AutoMapperConfiguration()

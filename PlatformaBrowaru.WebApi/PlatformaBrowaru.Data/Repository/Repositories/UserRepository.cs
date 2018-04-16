@@ -70,6 +70,11 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
         {
             return _dbContext.SaveChanges() > 0;
         }
-        
+
+        public async Task<bool> Update(ApplicationUser user)
+        {
+            _dbContext.Update(user);
+            return await SaveAsync();
+        }
     }
 }

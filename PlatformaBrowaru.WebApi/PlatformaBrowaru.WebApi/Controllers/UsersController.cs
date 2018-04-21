@@ -45,8 +45,6 @@ namespace PlatformaBrowaru.WebApi.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterAsync([FromBody]RegisterBindingModel registerModel)
         {
-            var date = DateTime.Now;
-            return Ok(date);
 
             if (!ModelState.IsValid)
             {

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace PlatformaBrowaru.Data.Migrations
 {
-    public partial class InitialAfterThirdDatabaseDrop : Migration
+    public partial class initialMig : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -70,6 +70,7 @@ namespace PlatformaBrowaru.Data.Migrations
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     Email = table.Column<string>(nullable: true),
                     FirstName = table.Column<string>(nullable: true),
+                    Guid = table.Column<Guid>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
                     IsVerified = table.Column<bool>(nullable: false),
                     LastName = table.Column<string>(nullable: true),
@@ -247,7 +248,7 @@ namespace PlatformaBrowaru.Data.Migrations
                     AlcoholAmountPercent = table.Column<decimal>(nullable: false),
                     BrandProductionId = table.Column<long>(nullable: true),
                     Color = table.Column<string>(nullable: true),
-                    CreationDate = table.Column<DateTime>(nullable: false),
+                    CreationDate = table.Column<DateTime>(nullable: true),
                     DeletedById = table.Column<long>(nullable: true),
                     DeletionReason = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
@@ -375,19 +376,18 @@ namespace PlatformaBrowaru.Data.Migrations
                 name: "BrandWrappings",
                 columns: table => new
                 {
-                    BrandId = table.Column<int>(nullable: false),
-                    WrappingId = table.Column<long>(nullable: false),
-                    BrandId1 = table.Column<long>(nullable: true)
+                    BrandId = table.Column<long>(nullable: false),
+                    WrappingId = table.Column<long>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BrandWrappings", x => new { x.BrandId, x.WrappingId });
                     table.ForeignKey(
-                        name: "FK_BrandWrappings_Brands_BrandId1",
-                        column: x => x.BrandId1,
+                        name: "FK_BrandWrappings_Brands_BrandId",
+                        column: x => x.BrandId,
                         principalTable: "Brands",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_BrandWrappings_Wrappings_WrappingId",
                         column: x => x.WrappingId,
@@ -510,11 +510,6 @@ namespace PlatformaBrowaru.Data.Migrations
                 name: "IX_BrandSeasons_SeasonId",
                 table: "BrandSeasons",
                 column: "SeasonId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BrandWrappings_BrandId1",
-                table: "BrandWrappings",
-                column: "BrandId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BrandWrappings_WrappingId",

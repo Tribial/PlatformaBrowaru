@@ -18,6 +18,10 @@ namespace PlatformaBrowaru.Services
         public static void Config(IConfiguration configuration, IServiceCollection services)
         {
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IBrandRepository, BrandRepository>();
+            services.AddTransient<IEnumerationRepository, EnumerationRepository>();
+            services.AddTransient<IKindRepository, KindRepository>();
+            services.AddTransient<IBreweryRepository, BreweryRepository>();
 
             var configure = new StartUpConfig(configuration);
             configure.PartOfConfigureServices(services);

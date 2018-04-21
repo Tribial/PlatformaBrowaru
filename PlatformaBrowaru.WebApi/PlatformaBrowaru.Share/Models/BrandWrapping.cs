@@ -6,7 +6,7 @@ namespace PlatformaBrowaru.Share.Models
 {
     public class BrandWrapping
     {
-        public int BrandId { get; set; }
+        public long BrandId { get; set; }
         public virtual Brand Brand { get; set; }
         public virtual Wrapping Wrapping { get; set; }
         public long WrappingId { get; set; }

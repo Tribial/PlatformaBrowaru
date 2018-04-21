@@ -45,9 +45,12 @@ namespace PlatformaBrowaru.WebApi.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterAsync([FromBody]RegisterBindingModel registerModel)
         {
+            var date = DateTime.Now;
+            return Ok(date);
+
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(ModelStateErrors());
             }
 
             var result = await _userService.RegisterAsync(registerModel);
@@ -132,6 +135,11 @@ namespace PlatformaBrowaru.WebApi.Controllers
         [HttpPatch("ChangeEmail")]
         public IActionResult ChangeEmail([FromBody]ChangeEmailBindingModel changeEmailModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+
             var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
 
             var userId = Convert.ToInt64(rawUserId);
@@ -148,6 +156,11 @@ namespace PlatformaBrowaru.WebApi.Controllers
         [HttpPatch("ChangePassword")]
         public IActionResult ChangePassword([FromBody]ChangePasswordBindingModel changePasswordModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+
             var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
 
             var userId = Convert.ToInt64(rawUserId);
@@ -164,6 +177,11 @@ namespace PlatformaBrowaru.WebApi.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> EditUserProfile(long id, [FromBody] UserProfileBindingModel userProfile)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+
             var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
             var userId = Convert.ToInt64(rawUserId);
 

@@ -23,7 +23,7 @@ namespace PlatformaBrowaru.Share.Models
         public virtual List<BrandFermentationType> BrandFermentationTypes { get; set; }
         public virtual List<BrandBrewingMethod> BrandBrewingMethods { get; set; }
         public virtual List<BrandWrapping> BrandWrappings { get; set; }
-        public DateTime CreationDate { get; set; }
+        public DateTime? CreationDate { get; set; }
         public virtual ApplicationUser AddedBy { get; set; }
         public DateTime AddedAt { get; set; }
         public virtual ApplicationUser EditedBy { get; set; }

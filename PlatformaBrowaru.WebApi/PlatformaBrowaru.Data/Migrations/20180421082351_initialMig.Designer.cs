@@ -11,8 +11,8 @@ using System;
 namespace PlatformaBrowaru.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20180326171354_InitialAfterThirdDatabaseDrop")]
-    partial class InitialAfterThirdDatabaseDrop
+    [Migration("20180421082351_initialMig")]
+    partial class initialMig
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -31,6 +31,8 @@ namespace PlatformaBrowaru.Data.Migrations
                     b.Property<string>("Email");
 
                     b.Property<string>("FirstName");
+
+                    b.Property<Guid>("Guid");
 
                     b.Property<bool>("IsDeleted");
 
@@ -62,7 +64,7 @@ namespace PlatformaBrowaru.Data.Migrations
 
                     b.Property<string>("Color");
 
-                    b.Property<DateTime>("CreationDate");
+                    b.Property<DateTime?>("CreationDate");
 
                     b.Property<long?>("DeletedById");
 
@@ -182,15 +184,11 @@ namespace PlatformaBrowaru.Data.Migrations
 
             modelBuilder.Entity("PlatformaBrowaru.Share.Models.BrandWrapping", b =>
                 {
-                    b.Property<int>("BrandId");
+                    b.Property<long>("BrandId");
 
                     b.Property<long>("WrappingId");
 
-                    b.Property<long?>("BrandId1");
-
                     b.HasKey("BrandId", "WrappingId");
-
-                    b.HasIndex("BrandId1");
 
                     b.HasIndex("WrappingId");
 
@@ -486,7 +484,8 @@ namespace PlatformaBrowaru.Data.Migrations
                 {
                     b.HasOne("PlatformaBrowaru.Share.Models.Brand", "Brand")
                         .WithMany("BrandWrappings")
-                        .HasForeignKey("BrandId1");
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("PlatformaBrowaru.Share.Models.Wrapping", "Wrapping")
                         .WithMany("BrandWrappings")

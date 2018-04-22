@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using PlatformaBrowaru.Data.Data;
 using PlatformaBrowaru.Data.Repository.Interfaces;
 using PlatformaBrowaru.Share.Models;
+using System.Linq;
+
 
 namespace PlatformaBrowaru.Data.Repository.Repositories
 {
@@ -21,6 +23,12 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
         {
             await _dbContext.Brands.AddAsync(brand);
             return await SaveAsync();
+        }
+
+        public Brand Get(Func<Brand, bool> function)
+        {
+            var result = _dbContext.Brands.FirstOrDefault(function);
+            return result;
         }
 
         public async Task<bool> SaveAsync()

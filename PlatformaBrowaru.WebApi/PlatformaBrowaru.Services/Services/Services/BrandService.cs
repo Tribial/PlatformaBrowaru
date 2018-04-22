@@ -73,7 +73,7 @@ namespace PlatformaBrowaru.Services.Services.Services
                 return result;
             }
 
-            brandBindingModel.SeasonIds.ForEach(s => 
+            brandBindingModel.SeasonIds.ForEach(s =>
                 brand.BrandSeasons.Add(
                     new BrandSeason
                     {
@@ -84,7 +84,7 @@ namespace PlatformaBrowaru.Services.Services.Services
                     })
                 );
 
-            brandBindingModel.BrewingMethodIds.ForEach(b => 
+            brandBindingModel.BrewingMethodIds.ForEach(b =>
                 brand.BrandBrewingMethods.Add(
                     new BrandBrewingMethod
                     {
@@ -107,6 +107,7 @@ namespace PlatformaBrowaru.Services.Services.Services
                     })
                 );
 
+
             var updateResult = await _brandRepository.UpdateAsync(brand);
 
             if (!updateResult)
@@ -116,6 +117,92 @@ namespace PlatformaBrowaru.Services.Services.Services
             }
 
             return result;
+        }
+
+        public async Task<ResponseDto<BaseModelDto>> EditBeerBrandAsync(long userId, long brandId, EditBrandBindingModel beerBrand)
+        {
+            var result = new ResponseDto<BaseModelDto>();
+
+            var brand = _brandRepository.Get(u => u.Id == brandId);
+            brand.Name = beerBrand.Name;
+            brand.Description = beerBrand.Description;
+            brand.Ingredients = beerBrand.Ingredients;
+            brand.Color = beerBrand.Color;
+            brand.AlcoholAmountPercent = beerBrand.AlcoholAmountPercent;
+            brand.ExtractPercent = beerBrand.ExtractPercent;
+            brand.HopIntensity = beerBrand.HopIntensity ?? -1;
+            brand.TasteFullness = beerBrand.TasteFullness ?? -1;
+            brand.Sweetness = beerBrand.Sweetness ?? -1;
+            brand.Kind = _kindRepository.Get(k => k.Id == beerBrand.KindId);
+            brand.IsPasteurized = beerBrand.IsPasteurized;
+            brand.IsFiltered = beerBrand.IsFiltered;
+            brand.BrandProduction = new BrandProduction
+            {
+                EditedAt = DateTime.Now,
+                EditedBy = _userRepository.Get(u => u.Id == userId),
+                ProducedBy = _breweryRepository.Get(b => b.Id == beerBrand.BrandProduction.BreweryId),
+                ProducedFrom = beerBrand.BrandProduction.ProducedFrom,
+                ProducedTo = beerBrand.BrandProduction.ProducedTo,
+            };
+            brand.CreationDate = beerBrand.CreationDate;
+            brand.EditedAt = DateTime.Now;
+            brand.EditedBy = _userRepository.Get(u => u.Id == userId);
+
+            beerBrand.SeasonIds.ForEach(z =>
+                brand.BrandSeasons.Add(
+                    new BrandSeason
+                    {
+                        Brand = brand,
+                        BrandId = brand.Id,
+                        Season = _enumerationRepository.GetSeason(x => x.Id == z),
+                        SeasonId = z
+                    })
+                );
+
+            beerBrand.FermentationTypeIds.ForEach(s =>
+                brand.BrandFermentationTypes.Add(
+                    new BrandFermentationType
+                    {
+                        Brand = brand,
+                        BrandId = brand.Id,
+                        FermentationType = _enumerationRepository.GetFermentation(x => x.Id == s),
+                        FermentationTypeId = s
+                    })
+                );
+
+            beerBrand.BrewingMethodIds.ForEach(c =>
+                brand.BrandBrewingMethods.Add(
+                    new BrandBrewingMethod
+                    {
+                        Brand = brand,
+                        BrandId = brand.Id,
+                        BrewingMethod = _enumerationRepository.GetBrewingMethod(x => x.Id == c),
+                        BrewingMethodId = c
+                    })
+                );
+
+
+            beerBrand.WrappingIds.ForEach(v =>
+                brand.BrandWrappings.Add(
+                    new BrandWrapping
+                    {
+                        Brand = brand,
+                        BrandId = brand.Id,
+                        Wrapping = _enumerationRepository.GetWrapping(x => x.Id == v),
+                        WrappingId = v
+                    })
+                );
+
+
+            var updateResult = await _brandRepository.UpdateAsync(brand);
+
+            if (!updateResult)
+            {
+                result.Errors.Add("Wystąpił nieoczekiwany błąd, spróbuj ponownie później");
+            }
+
+            return result;
+
         }
     }
 }

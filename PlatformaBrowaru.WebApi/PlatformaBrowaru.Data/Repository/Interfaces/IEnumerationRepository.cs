@@ -10,5 +10,6 @@ namespace PlatformaBrowaru.Data.Repository.Interfaces
         Season GetSeason(Func<Season, bool> function);
         BrewingMethod GetBrewingMethod(Func<BrewingMethod, bool> function);
         Wrapping GetWrapping(Func<Wrapping, bool> function);
+        FermentationType GetFermentation(Func<FermentationType, bool> function);
     }
 }

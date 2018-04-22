@@ -8,6 +8,7 @@ namespace PlatformaBrowaru.Data.Repository.Interfaces
 {
     public interface IBrandRepository
     {
+        Brand Get(Func<Brand, bool> function);
         Task<bool> InsertAsync(Brand brand);
         Task<bool> SaveAsync();
         bool Save();

@@ -32,5 +32,10 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
         {
             return _dbContext.Wrappings.FirstOrDefault(function);
         }
+
+        public FermentationType GetFermentation (Func<FermentationType, bool> function)
+        {
+            return _dbContext.FermentationTypes.FirstOrDefault(function);
+        }
     }
 }

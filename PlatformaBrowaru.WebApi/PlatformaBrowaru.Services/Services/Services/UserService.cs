@@ -166,6 +166,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             if (userWithSameUsernmeAlreadyExists)
             {
                 result.Errors.Add("Podany przez ciebie login już istnieje");
+                return result;
 
             }
 

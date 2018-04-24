@@ -177,6 +177,16 @@ namespace PlatformaBrowaru.Services.Services.Services
                 result.Errors.Add("Podany przez ciebie email już istnieje");
                 return result;
             }
+
+            int age = DateTime.Today.Year - registerModel.DateOfBirth.Year;
+            if (DateTime.Today < registerModel.DateOfBirth.AddYears(age)) age--;
+
+            if (age < 18)
+            {
+                result.Errors.Add("Musisz mieć ukończone 18 lat.");
+                return result;
+            }
+
             var user = new ApplicationUser()
             {
                 FirstName = registerModel.FirstName,
@@ -185,7 +195,11 @@ namespace PlatformaBrowaru.Services.Services.Services
                 Email = registerModel.Email,
                 PasswordHash = registerModel.Password.ToHash(),
                 CreatedAt = DateTime.Now,
-                Guid = Guid.NewGuid()
+                Guid = Guid.NewGuid(),
+                Description = registerModel.Description,
+                Role = registerModel.Role,
+                Gender = registerModel.Gender,
+                DateOfBirth = registerModel.DateOfBirth
             };
 
             var userRepository = await _userRepository.Insert(user);
@@ -197,7 +211,7 @@ namespace PlatformaBrowaru.Services.Services.Services
 
 
             await _emailService.SendEmail(user.Email, "Platforma Browaru - aktywacja",
-                $"Witaj {user.FirstName}!\n Aby aktywować swoje konto kliknij w poniższy link:\n http://localhost:18831/Users/Activate/" +
+                $"Witaj {user.Username}!\n Aby aktywować swoje konto kliknij w poniższy link:\n http://localhost:18831/Users/Activate/" +
                 user.Guid);
 
             return result;
@@ -219,10 +233,19 @@ namespace PlatformaBrowaru.Services.Services.Services
                 result.Errors.Add("Coś poszło nie tak. Użytkownik o podanym Id nie istnieje.");
                 return result;
             }
-            result.Object.FirstName = user.FirstName;
-            result.Object.LastName = user.LastName;
+            result.Object.FullName = user.FirstName + user.LastName;
             result.Object.Email = user.Email;
             result.Object.Username = user.Username;
+            result.Object.Description = user.Description;
+            result.Object.CreatedAt = user.CreatedAt;
+            result.Object.DateOfBirth = user.DateOfBirth;
+            result.Object.Gender = user.Gender;
+            if (user.IsVerified && !user.IsDeleted)
+                result.Object.Status = "Aktywowany";
+            else if (user.IsDeleted)
+                result.Object.Status = "Usunięty";
+            else
+                result.Object.Status = "Zarejestrowany";
 
             return result;
         }
@@ -267,8 +290,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             {
                 var userObject = new GetUserDto()
                 {
-                    FirstName = element.FirstName,
-                    LastName = element.LastName,
+                    FullName = element.FirstName + element.LastName,
                     Email = element.Email,
                     Username = element.Username
                 };

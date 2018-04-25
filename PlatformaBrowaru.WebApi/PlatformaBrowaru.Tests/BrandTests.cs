@@ -160,9 +160,11 @@ namespace PlatformaBrowaru.Tests
 
             var brandService = new BrandService(userRepository.Object, brandRepository.Object,
                 enumerationRepository.Object, kindRepository.Object, breweryRepository.Object);
-            var brandController = new BrandController(brandService);
+            var brandController = new BrandController(brandService)
+            {
+                ControllerContext = {HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)}}
+            };
 
-            brandController.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             var resultRaw = brandController.AddBeerBrand(newBrand).Result;
             var result = Assert.IsType<OkObjectResult>(resultRaw);

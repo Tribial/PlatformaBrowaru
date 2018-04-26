@@ -65,5 +65,26 @@ namespace PlatformaBrowaru.WebApi.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet]
+        public IActionResult GetBrands([FromQuery] BrandSearchBindingModel parameters)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = _brandService.GetBrands(userId, parameters);
+
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
     }
 }

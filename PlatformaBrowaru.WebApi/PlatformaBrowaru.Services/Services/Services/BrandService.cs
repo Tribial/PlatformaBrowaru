@@ -195,5 +195,27 @@ namespace PlatformaBrowaru.Services.Services.Services
             return result;
 
         }
+
+        public ResponseDto<SearchResult<BrandForSearchDto>> GetBrands(long userId, BrandSearchBindingModel parametes)
+        {
+            var result = new ResponseDto<SearchResult<BrandForSearchDto>>();
+
+            var brands = _brandRepository.GetByParameters(userId, parametes);
+
+            if (brands.TotalPageCount == 0)
+            {
+                result.Errors.Add("Nie znaleziono projektów");
+                return result;
+            }
+
+            if (parametes.PageNumber > brands.TotalPageCount)
+            {
+                result.Errors.Add($"Strona {parametes.PageNumber} wykracza poza limit {brands.TotalPageCount}");
+                return result;
+            }
+
+            result.Object = brands;
+            return result;
+        }
     }
 }

@@ -109,7 +109,7 @@ namespace PlatformaBrowaru.Services.Services.Services
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Sid, user.Id.ToString()),
                 new Claim(ClaimTypes.Hash, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Role, user.Role), 
+                new Claim(ClaimTypes.Role, user.Role ?? ""), 
             };
 
             var token = new JwtSecurityToken(

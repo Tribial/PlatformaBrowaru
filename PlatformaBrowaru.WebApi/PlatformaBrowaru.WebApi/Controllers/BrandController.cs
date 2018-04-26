@@ -12,7 +12,7 @@ using PlatformaBrowaru.Share.ModelsDto;
 namespace PlatformaBrowaru.WebApi.Controllers
 {
     [Route("Brands")]
-    [Authorize]
+    //[Authorize]
     public class BrandController : BaseController
     {
         private readonly IBrandService _brandService;

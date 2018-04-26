@@ -55,16 +55,7 @@ namespace PlatformaBrowaru.Services.Services.Services
                 IsFiltered = brandBindingModel.IsFiltered,
                 Ratings = new List<Rating>(),
                 Reviews = new List<Review>(),
-                BrandProduction = new BrandProduction
-                {
-                    AddedAt = DateTime.Now,
-                    AddedBy = _userRepository.Get(u => u.Id == userId),
-                    ProducedBy = _breweryRepository.Get(b => b.Id == brandBindingModel.BrandProduction.BreweryId),
-                    ProducedFrom = brandBindingModel.BrandProduction.ProducedFrom,
-                    ProducedTo = brandBindingModel.BrandProduction.ProducedTo,
-                }
             };
-            brand.BrandProduction.Brand = brand;
 
             var insertResult = await _brandRepository.InsertAsync(brand);
 

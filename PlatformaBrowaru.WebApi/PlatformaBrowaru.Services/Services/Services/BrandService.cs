@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PlatformaBrowaru.Data.Repository.Interfaces;
@@ -203,6 +204,73 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             return result;
 
+        }
+
+        public ResponseDto<GetBeerBrandDto> GetBeerBrand(long beerBrandId, long userId)
+        {
+            var brand = _brandRepository.Get(x => x.Id == beerBrandId);
+            
+            var result = new ResponseDto<GetBeerBrandDto>
+            {
+                Errors = new List<string>(),
+                Object = new GetBeerBrandDto()
+            };
+            
+            var wrappings = new List<string>();
+            brand.BrandWrappings.ForEach(brandWrapping =>
+            {
+                if (brandWrapping.BrandId == brand.Id)
+                {
+                    wrappings.Add(_enumerationRepository.GetWrapping(wrapping => wrapping.Id == brandWrapping.WrappingId).Name);
+                }
+            });
+            var seasons = new List<string>();
+            brand.BrandSeasons.ForEach(brandSeason =>
+            {
+                if (brandSeason.BrandId == brand.Id)
+                {
+                    seasons.Add(_enumerationRepository.GetSeason(season => season.Id == brandSeason.SeasonId).Name);
+                }
+            });
+            var brewingMethod = "";
+                brand.BrandBrewingMethods.ForEach(brandBrewingMethod =>
+                {
+                    if (brandBrewingMethod.BrandId == brand.Id)
+                    {
+                        brewingMethod = _enumerationRepository
+                            .GetBrewingMethod(x => x.Id == brandBrewingMethod.BrewingMethodId).Method;
+                    }
+                });
+            var fermentationType = "";
+            brand.BrandFermentationTypes.ForEach(brandFermentationType =>
+            {
+                if (brandFermentationType.BrandId == brand.Id)
+                {
+                    fermentationType = _enumerationRepository
+                        .GetFermentation(x => x.Id == brandFermentationType.FermentationTypeId).Type;
+                }
+            });
+            result.Object.Name = brand.Name;
+            result.Object.Description = brand.Description;
+            result.Object.Ingredients = brand.Ingredients;
+            result.Object.Kind = brand.Kind.Name;
+            result.Object.Color = brand.Color;
+            result.Object.AlcoholAmountPercent = brand.AlcoholAmountPercent;
+            result.Object.ExtractPercent = brand.ExtractPercent;
+            result.Object.GeneralRate = brand.Ratings.Sum(rating => rating.Rate)/ brand.Ratings.Count;
+            result.Object.YourRate = brand.Ratings.Find(r => r.Author.Id == userId).Rate;
+            result.Object.BrandWrappings = wrappings;
+            result.Object.HopIntensity = brand.HopIntensity;
+            result.Object.TasteFullness = brand.TasteFullness;
+            result.Object.Sweetness = brand.Sweetness;
+            result.Object.BrandSeasons = seasons;
+            result.Object.CreationDate = brand.CreationDate;
+            result.Object.BrandBrewingMethod = brewingMethod;
+            result.Object.BrandFermentationType = fermentationType;
+            result.Object.IsPasteurized = brand.IsPasteurized;
+            result.Object.IsFiltered = brand.IsFiltered;
+
+            return result;
         }
     }
 }

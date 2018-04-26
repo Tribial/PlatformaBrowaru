@@ -12,7 +12,7 @@ namespace PlatformaBrowaru.Share.BindingModels
         [StringLength(30, ErrorMessage = "Nazwa powinna zawierać od 3 do 30 znaków", MinimumLength = 3)]
         public string Name { get; set; }
         [Required]
-        [StringLength(255, ErrorMessage = "Opis powinien zawierać do 10 do 255 znaków", MinimumLength = 10)]
+        [StringLength(255, ErrorMessage = "Opis powinien zawierać od 10 do 255 znaków", MinimumLength = 10)]
         public string Description { get; set; }
         [Required]
         [StringLength(255, ErrorMessage = "Składniki powinny zawierać od 10 do 255 znaków", MinimumLength = 10)]

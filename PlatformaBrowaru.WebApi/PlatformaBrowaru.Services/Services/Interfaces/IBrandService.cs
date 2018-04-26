@@ -11,5 +11,6 @@ namespace PlatformaBrowaru.Services.Services.Interfaces
     {
         Task<ResponseDto<BaseModelDto>> AddBeerBrandAsync(long userId, BrandBindingModel brandBindingModel);
         Task<ResponseDto<BaseModelDto>> EditBeerBrandAsync(long userId, long brandId, EditBrandBindingModel beerBrand);
+        ResponseDto<GetBeerBrandDto> GetBeerBrand(long beerBrandId, long userId);
     }
 }

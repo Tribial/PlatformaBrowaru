@@ -79,5 +79,19 @@ namespace PlatformaBrowaru.WebApi.Controllers
             var result = _brandService.GetBeerBrand(beerBrandId, userId);
             return Ok(result);
         }
+
+        [HttpPatch("{beerBrandId}/Delete")]
+        public async Task<IActionResult> DeleteBeerBrandAsync(long beerBrandId, [FromBody] DeleteBeerBrandBindingModel deleteBrandModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = await _brandService.DeleteBeerBrandAsync(beerBrandId, userId, deleteBrandModel);
+            return Ok(result);
+        }
     }
 }

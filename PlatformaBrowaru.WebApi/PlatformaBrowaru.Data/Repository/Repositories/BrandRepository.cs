@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using PlatformaBrowaru.Share.BindingModels;
 using PlatformaBrowaru.Share.ExtensionMethods;
 using PlatformaBrowaru.Share.ModelsDto;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace PlatformaBrowaru.Data.Repository.Repositories
@@ -31,7 +32,13 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
 
         public Brand Get(Func<Brand, bool> function)
         {
-            var result = _dbContext.Brands.FirstOrDefault(function);
+            //var result = _dbContext.Brands.Include(b =>
+            //{
+            //    b.BrandWrappings
+
+            //};
+            var result = _dbContext.Brands.Include(b =>
+                b.BrandWrappings).Include(b => b.BrandSeasons).Include(b => b.BrandFermentationTypes).Include(b => b.BrandBrewingMethods).Include(b => b.Ratings).ThenInclude(r => r.Author).Include(b => b.Kind).ToList().FirstOrDefault(function);
             return result;
         }
 

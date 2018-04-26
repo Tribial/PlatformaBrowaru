@@ -23,7 +23,7 @@ namespace PlatformaBrowaru.WebApi.Controllers
         }
 
         [HttpPost("AddBrand")]
-        public async Task<IActionResult> AddBeerBrand([FromBody]BrandBindingModel brandBindingModel)
+        public async Task<IActionResult> AddBeerBrand([FromBody] BrandBindingModel brandBindingModel)
         {
             if (!ModelState.IsValid)
             {
@@ -63,6 +63,34 @@ namespace PlatformaBrowaru.WebApi.Controllers
                 return BadRequest(result);
             }
 
+            return Ok(result);
+        }
+
+        [HttpGet("{beerBrandId}/Details")]
+        public IActionResult GetBeerBrand(long beerBrandId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = _brandService.GetBeerBrand(beerBrandId, userId);
+            return Ok(result);
+        }
+
+        [HttpPatch("{beerBrandId}/Delete")]
+        public async Task<IActionResult> DeleteBeerBrandAsync(long beerBrandId, [FromBody] DeleteBeerBrandBindingModel deleteBrandModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = await _brandService.DeleteBeerBrandAsync(beerBrandId, userId, deleteBrandModel);
             return Ok(result);
         }
 

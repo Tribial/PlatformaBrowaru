@@ -13,6 +13,6 @@ namespace PlatformaBrowaru.Share.Models
         public string Content { get; set; }
         public DateTime AddedAt { get; set; }
         public DateTime? EditedAt { get; set; }
-        public bool IsDleted { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

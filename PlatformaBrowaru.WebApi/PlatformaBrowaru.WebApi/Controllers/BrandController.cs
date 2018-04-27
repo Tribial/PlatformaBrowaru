@@ -112,7 +112,7 @@ namespace PlatformaBrowaru.WebApi.Controllers
         }
 
         [HttpPatch("{beerBrandId}/Rate")]
-        public async Task<IActionResult> AddRatingAsync(long beerBrandId, [FromBody] AddRatingBindingModel addRatingModel)
+        public async Task<IActionResult> AddOrEditRatingAsync(long beerBrandId, [FromBody] AddRatingBindingModel addRatingModel)
         {
             if (!ModelState.IsValid)
             {
@@ -140,6 +140,24 @@ namespace PlatformaBrowaru.WebApi.Controllers
             var userId = Convert.ToInt64(rawUserId);
 
             var result = await _brandService.DeleteRatingAsync(beerBrandId, userId);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [HttpPost("{beerBrandId}/Reviews")]
+        public async Task<IActionResult> AddReviewAsync(long beerBrandId, [FromBody] AddReviewBindingModel addReviewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = await _brandService.AddReviewAsync(beerBrandId, userId, addReviewModel);
             if (result.ErrorOccured)
             {
                 return BadRequest(result);

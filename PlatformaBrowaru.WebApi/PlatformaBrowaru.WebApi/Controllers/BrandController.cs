@@ -69,10 +69,6 @@ namespace PlatformaBrowaru.WebApi.Controllers
         [HttpGet("{beerBrandId}/Details")]
         public IActionResult GetBeerBrand(long beerBrandId)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelStateErrors());
-            }
             var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
             var userId = Convert.ToInt64(rawUserId);
 
@@ -112,6 +108,42 @@ namespace PlatformaBrowaru.WebApi.Controllers
                 return BadRequest(result);
             }
 
+            return Ok(result);
+        }
+
+        [HttpPatch("{beerBrandId}/Rate")]
+        public async Task<IActionResult> AddRatingAsync(long beerBrandId, [FromBody] AddRatingBindingModel addRatingModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = await _brandService.AddRatingAsync(beerBrandId, userId, addRatingModel);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [HttpDelete("{beerBrandId}/Rate")]
+        public async Task<IActionResult> DeleteRatingAsync(long beerBrandId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = await _brandService.DeleteRatingAsync(beerBrandId, userId);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
             return Ok(result);
         }
     }

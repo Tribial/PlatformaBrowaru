@@ -13,6 +13,8 @@ namespace PlatformaBrowaru.Services.Services.Interfaces
         Task<ResponseDto<BaseModelDto>> EditBeerBrandAsync(long userId, long brandId, EditBrandBindingModel beerBrand);
         ResponseDto<GetBeerBrandDto> GetBeerBrand(long beerBrandId, long userId);
         Task<ResponseDto<BaseModelDto>> DeleteBeerBrandAsync(long beerBrandId, long userId, DeleteBeerBrandBindingModel deleteBrandModel);
+        Task<ResponseDto<BaseModelDto>> AddRatingAsync(long beerBrandId, long userId, AddRatingBindingModel addRatingModel);
+        Task<ResponseDto<BaseModelDto>> DeleteRatingAsync(long beerBrandId, long userId);
         ResponseDto<SearchResult<BrandForSearchDto>> GetBrands(long userId, BrandSearchBindingModel parametes);
     }
 }

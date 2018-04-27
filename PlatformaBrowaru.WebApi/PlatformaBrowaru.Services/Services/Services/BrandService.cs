@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,16 +19,18 @@ namespace PlatformaBrowaru.Services.Services.Services
         private readonly IEnumerationRepository _enumerationRepository;
         private readonly IKindRepository _kindRepository;
         private readonly IBreweryRepository _breweryRepository;
+        private readonly IRatingRepository _ratingRepository;
 
         public BrandService(IUserRepository userRepository, IBrandRepository brandRepository,
             IEnumerationRepository enumerationRepository, IKindRepository kindRepository,
-            IBreweryRepository breweryRepository)
+            IBreweryRepository breweryRepository, IRatingRepository ratingRepository)
         {
             _userRepository = userRepository;
             _brandRepository = brandRepository;
             _enumerationRepository = enumerationRepository;
             _kindRepository = kindRepository;
             _breweryRepository = breweryRepository;
+            _ratingRepository = ratingRepository;
         }
 
         public async Task<ResponseDto<BaseModelDto>> AddBeerBrandAsync(long userId, BrandBindingModel brandBindingModel)
@@ -252,8 +255,16 @@ namespace PlatformaBrowaru.Services.Services.Services
             result.Object.Color = brand.Color;
             result.Object.AlcoholAmountPercent = brand.AlcoholAmountPercent;
             result.Object.ExtractPercent = brand.ExtractPercent;
-            result.Object.GeneralRate = brand.Ratings.Sum(rating => rating.Rate) / brand.Ratings.Count;
-            result.Object.YourRate = brand.Ratings.Find(r => r.Author.Id == userId).Rate;
+            if (brand.Ratings.Count != 0)
+            {
+                result.Object.GeneralRate = brand.Ratings.Sum(rating => rating.Rate) / brand.Ratings.Count;
+                
+            }
+            else
+            {
+                result.Object.GeneralRate = 0;
+            }
+            result.Object.YourRate = brand.Ratings.Find(r => r.Author.Id == userId)?.Rate;
             result.Object.BrandWrappings = wrappings;
             result.Object.HopIntensity = brand.HopIntensity;
             result.Object.TasteFullness = brand.TasteFullness;
@@ -305,6 +316,49 @@ namespace PlatformaBrowaru.Services.Services.Services
             }
 
             result.Object = brands;
+            return result;
+        }
+
+        public async Task<ResponseDto<BaseModelDto>> AddRatingAsync(long beerBrandId, long userId, AddRatingBindingModel addRatingModel)
+        {
+            var result = new ResponseDto<BaseModelDto>();
+            var brand = _brandRepository.Get(x => x.Id == beerBrandId);
+            if (brand.Ratings.Find(rate => rate.Author.Id == userId) != null)
+            {
+                result.Errors.Add("Już oceniłeś tę markę");
+                return result;
+            }
+            brand.Ratings.Add(new Rating
+            {
+                Author = _userRepository.Get( u => u.Id == userId),
+                Brand = brand,
+                Rate = addRatingModel.Rating
+            });
+            var updateResult = await _brandRepository.UpdateAsync(brand);
+            if (!updateResult)
+            {
+                result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później");
+                return result;
+            }
+
+            return result;
+        }
+
+        public async Task<ResponseDto<BaseModelDto>> DeleteRatingAsync(long beerBrandId, long userId)
+        {
+            var result = new ResponseDto<BaseModelDto>();
+            var brand = _brandRepository.Get(x => x.Id == beerBrandId);
+            var rating = _ratingRepository.Get(r => r.Author.Id == userId && r.Brand.Id == beerBrandId);
+            var ratingToDelete = brand.Ratings.Find(rate => rate.Author.Id == userId);
+            
+
+            var deleteResult = await _ratingRepository.DeleteAsync(ratingToDelete);
+            if (!deleteResult)
+            {
+                result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później");
+                return result;
+            }
+
             return result;
         }
     }

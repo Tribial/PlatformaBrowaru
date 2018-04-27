@@ -319,21 +319,24 @@ namespace PlatformaBrowaru.Services.Services.Services
             return result;
         }
 
-        public async Task<ResponseDto<BaseModelDto>> AddRatingAsync(long beerBrandId, long userId, AddRatingBindingModel addRatingModel)
+        public async Task<ResponseDto<BaseModelDto>> AddOrEditRatingAsync(long beerBrandId, long userId, AddRatingBindingModel addRatingModel)
         {
             var result = new ResponseDto<BaseModelDto>();
             var brand = _brandRepository.Get(x => x.Id == beerBrandId);
-            if (brand.Ratings.Find(rate => rate.Author.Id == userId) != null)
+            var yourRating = brand.Ratings.Find(rate => rate.Author.Id == userId);
+            if (yourRating != null)
             {
-                result.Errors.Add("Już oceniłeś tę markę");
-                return result;
+                yourRating.Rate = addRatingModel.Rating;
             }
-            brand.Ratings.Add(new Rating
+            else
             {
-                Author = _userRepository.Get( u => u.Id == userId),
-                Brand = brand,
-                Rate = addRatingModel.Rating
-            });
+                brand.Ratings.Add(new Rating
+                {
+                    Author = _userRepository.Get(u => u.Id == userId),
+                    Brand = brand,
+                    Rate = addRatingModel.Rating
+                });
+            }
             var updateResult = await _brandRepository.UpdateAsync(brand);
             if (!updateResult)
             {
@@ -348,10 +351,7 @@ namespace PlatformaBrowaru.Services.Services.Services
         {
             var result = new ResponseDto<BaseModelDto>();
             var brand = _brandRepository.Get(x => x.Id == beerBrandId);
-            var rating = _ratingRepository.Get(r => r.Author.Id == userId && r.Brand.Id == beerBrandId);
             var ratingToDelete = brand.Ratings.Find(rate => rate.Author.Id == userId);
-            
-
             var deleteResult = await _ratingRepository.DeleteAsync(ratingToDelete);
             if (!deleteResult)
             {

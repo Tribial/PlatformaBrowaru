@@ -121,7 +121,7 @@ namespace PlatformaBrowaru.WebApi.Controllers
             var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
             var userId = Convert.ToInt64(rawUserId);
 
-            var result = await _brandService.AddRatingAsync(beerBrandId, userId, addRatingModel);
+            var result = await _brandService.AddOrEditRatingAsync(beerBrandId, userId, addRatingModel);
             if (result.ErrorOccured)
             {
                 return BadRequest(result);

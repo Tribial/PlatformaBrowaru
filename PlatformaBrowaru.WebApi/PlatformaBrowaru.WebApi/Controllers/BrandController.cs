@@ -164,5 +164,43 @@ namespace PlatformaBrowaru.WebApi.Controllers
             }
             return Ok(result);
         }
+
+        [HttpPatch("{beerBrandId}/Reviews/{reviewId}/Edit")]
+        public async Task<IActionResult> EditReviewAsync(long beerBrandId, [FromBody] EditReviewBindingModel editReviewModel, long reviewId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+            var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = await _brandService.EditReviewAsync(beerBrandId, userId, editReviewModel, userRole, reviewId);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [HttpPatch("{beerBrandId}/Reviews/{reviewId}/Delete")]
+        public async Task<IActionResult> DeleteReviewAsync(long beerBrandId, long reviewId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+            var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = await _brandService.DeleteReviewAsync(beerBrandId, userId, userRole, reviewId);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
     }
 }

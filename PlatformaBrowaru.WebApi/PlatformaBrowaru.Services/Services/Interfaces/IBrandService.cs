@@ -17,5 +17,7 @@ namespace PlatformaBrowaru.Services.Services.Interfaces
         Task<ResponseDto<BaseModelDto>> DeleteRatingAsync(long beerBrandId, long userId);
         ResponseDto<SearchResult<BrandForSearchDto>> GetBrands(long userId, BrandSearchBindingModel parametes);
         Task<ResponseDto<BaseModelDto>> AddReviewAsync(long beerBrandId, long userId, AddReviewBindingModel addReviewModel);
+        Task<ResponseDto<BaseModelDto>> EditReviewAsync(long beerBrandId, long userId, EditReviewBindingModel editReviewModel, string userRole, long reviewId);
+        Task<ResponseDto<BaseModelDto>> DeleteReviewAsync(long beerBrandId, long userId, string userRole, long reviewId);
     }
 }

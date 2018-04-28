@@ -361,7 +361,7 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             return result;
         }
-
+        
         public async Task<ResponseDto<BaseModelDto>> AddReviewAsync(long beerBrandId, long userId, AddReviewBindingModel addReviewModel)
         {
             var result = new ResponseDto<BaseModelDto>();
@@ -389,6 +389,75 @@ namespace PlatformaBrowaru.Services.Services.Services
             if (!updateResult)
             {
                 result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później");
+                return result;
+            }
+
+            return result;
+        }
+
+        public async Task<ResponseDto<BaseModelDto>> EditReviewAsync(long beerBrandId, long userId, EditReviewBindingModel editReviewModel, string userRole, long reviewId)
+        {
+            var result = new ResponseDto<BaseModelDto>();
+            var brand = _brandRepository.Get(x => x.Id == beerBrandId);
+            var yourReview = brand.Reviews.Find(review => review.Author.Id == userId);
+            if (yourReview != null)
+            {
+                yourReview.Title = editReviewModel.Title;
+                yourReview.Content = editReviewModel.Content;
+                yourReview.EditedAt = DateTime.Now;
+            }
+            else
+            {
+                if (userRole == "Moderator" || userRole == "Administrator")
+                {
+                    var review = _brandRepository.GetReview(r => r.Id == reviewId);
+                    review.Title = editReviewModel.Title;
+                    review.Content = editReviewModel.Content;
+                    review.EditedAt = DateTime.Now;
+                }
+                else
+                {
+                    result.Errors.Add("Nie masz odpowiednich uprawnień, aby edytować tę recenzję");
+                    return result;
+                }
+            }
+            var updateResult = await _brandRepository.UpdateAsync(brand);
+            if (!updateResult)
+            {
+                result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później.");
+                return result;
+            }
+
+            return result;
+        }
+
+        public async Task<ResponseDto<BaseModelDto>> DeleteReviewAsync(long beerBrandId, long userId, string userRole, long reviewId)
+        {
+            var result = new ResponseDto<BaseModelDto>();
+            var brand = _brandRepository.Get(x => x.Id == beerBrandId);
+            var yourReview = brand.Reviews.Find(review => review.Author.Id == userId);
+            if (yourReview != null)
+            {
+                yourReview.IsDeleted = true;
+            }
+            else
+            {
+                if (userRole == "Moderator" || userRole == "Administrator")
+                {
+                    var review = _brandRepository.GetReview(r => r.Id == reviewId);
+                    review.IsDeleted = true;
+                }
+                else
+                {
+                    result.Errors.Add("Nie masz odpowiednich uprawnień, aby usunąć tę recenzję");
+                    return result;
+                }
+            }
+
+            var updateResult = await _brandRepository.UpdateAsync(brand);
+            if (!updateResult)
+            {
+                result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później.");
                 return result;
             }
 

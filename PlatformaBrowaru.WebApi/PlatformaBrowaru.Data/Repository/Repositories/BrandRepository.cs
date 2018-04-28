@@ -37,6 +37,11 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             return result;
         }
 
+        public Review GetReview(Func<Review, bool> function)
+        {
+            return _dbContext.Reviews.FirstOrDefault(function);
+        }
+
         public async Task<bool> SaveAsync()
         {
             return await _dbContext.SaveChangesAsync() > 0;

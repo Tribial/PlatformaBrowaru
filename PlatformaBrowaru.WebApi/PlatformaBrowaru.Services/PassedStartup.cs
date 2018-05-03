@@ -23,6 +23,7 @@ namespace PlatformaBrowaru.Services
             services.AddTransient<IKindRepository, KindRepository>();
             services.AddTransient<IBreweryRepository, BreweryRepository>();
             services.AddTransient<IRatingRepository, RatingRepository>();
+            services.AddTransient<IModerationRepository, ModerationRepository>();
 
             var configure = new StartUpConfig(configuration);
             configure.PartOfConfigureServices(services);

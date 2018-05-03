@@ -64,13 +64,14 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             if (parameters.Query != null)
             {
                 brands = _dbContext.Brands.Include(b => b.Kind).Include(b => b.Ratings).Where(b =>
-                    b.Name.Contains(parameters.Query) ||
-                    b.Kind.Name.Contains(parameters.Query)
+                    b.IsAccepted &&
+                    (b.Name.Contains(parameters.Query) ||
+                    b.Kind.Name.Contains(parameters.Query))
                 ).ToList();
             }
             else
             {
-                brands = _dbContext.Brands.Include(b => b.Kind).ToList();
+                brands = _dbContext.Brands.Include(b => b.Kind).Include(b => b.Ratings).Where(b => b.IsAccepted).ToList();
             }
 
             var totalPages = (int) Math.Ceiling((decimal) brands.Count() / parameters.Limit);

@@ -102,7 +102,7 @@ namespace PlatformaBrowaru.WebApi.Controllers
             return Ok(result);
         }
 
-        [HttpGet("List")]
+        [HttpGet]
         public IActionResult GetAllUsers()
         {
             var result = _userService.GetAllUsers();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using PlatformaBrowaru.Share.Models;
+using PlatformaBrowaru.Share.ModelsDto;
 
 namespace PlatformaBrowaru.Data.Data
 {
@@ -27,11 +28,19 @@ namespace PlatformaBrowaru.Data.Data
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<BrewingMethod> BrewingMethods { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<BrandToModerate> BrandsToModerate { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ApplicationUser>()
                 .HasKey(b => b.Id);
+
+            modelBuilder.Entity<BrandToModerate>()
+                .HasKey(b => b.Id);
+            modelBuilder.Entity<BrandToModerate>()
+                .HasOne(b => b.Brand);
+            modelBuilder.Entity<BrandToModerate>()
+                .HasOne(b => b.User);
 
             modelBuilder.Entity<Brand>()
                 .HasKey(b => b.Id);

@@ -72,8 +72,7 @@ namespace PlatformaBrowaru.Data.Data
             modelBuilder.Entity<BrandProduction>()
                 .HasKey(b => b.Id);
             modelBuilder.Entity<BrandProduction>()
-                .HasOne(b => b.Brand)
-                .WithOne(b => b.BrandProduction);
+                .HasOne(b => b.Brand);
             modelBuilder.Entity<BrandProduction>()
                 .HasOne(b => b.ProducedBy)
                 .WithMany(b => b.BrandProductions);

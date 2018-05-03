@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using PlatformaBrowaru.Share.BindingModels;
 using PlatformaBrowaru.Share.ExtensionMethods;
 using PlatformaBrowaru.Share.ModelsDto;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace PlatformaBrowaru.Data.Repository.Repositories
@@ -64,15 +63,14 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
 
             if (parameters.Query != null)
             {
-                brands = _dbContext.Brands.Include(b => b.Kind).Include(b => b.BrandProduction).Include(b => b.Ratings).Where(b =>
+                brands = _dbContext.Brands.Include(b => b.Kind).Include(b => b.Ratings).Where(b =>
                     b.Name.Contains(parameters.Query) ||
-                    b.BrandProduction.ProducedBy.Owner.Name.Contains(parameters.Query) ||
                     b.Kind.Name.Contains(parameters.Query)
                 ).ToList();
             }
             else
             {
-                brands = _dbContext.Brands.Include(b => b.Kind).Include(b => b.BrandProduction).ToList();
+                brands = _dbContext.Brands.Include(b => b.Kind).ToList();
             }
 
             var totalPages = (int) Math.Ceiling((decimal) brands.Count() / parameters.Limit);
@@ -81,7 +79,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
 
             if (property == null)
             {
-                BrandSearchBindingModel defaultParameters = new BrandSearchBindingModel();
+                var defaultParameters = new BrandSearchBindingModel();
                 property = typeof(Brand).GetProperty(defaultParameters.Sort);
             }
 
@@ -93,27 +91,16 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
 
             var result = new SearchResult<BrandForSearchDto>();
             var brandsForSearch = new List<BrandForSearchDto>();
-            foreach (var brand in brands)
-            {
-                var toAdd = new BrandForSearchDto();
-
-                toAdd.Alcohol = brand.AlcoholAmountPercent;
-                var brandProduction = _dbContext.BrandProductions.Include(b => b.ProducedBy)
-                    .First(b => b.Id == brand.BrandProduction.Id);
-                var brewery = _dbContext.Breweries.Include(b => b.Owner)
-                    .First(b => b.Id == brandProduction.ProducedBy.Id);
-                var brewingGroup = _dbContext.BrewingGroups.First(b => b.Id == brewery.Owner.Id);
-                toAdd.BrewingGroup = new SimpleBrewingGroupDto
+            brands.ToList().ForEach(b => 
+                brandsForSearch.Add(new BrandForSearchDto
                 {
-                    Id = brewingGroup.Id,
-                    Name = brewingGroup.Name
-                };
-                toAdd.KindName = brand.Kind.Name;
-                toAdd.Name = brand.Name;
-                toAdd.Rate = brand.Ratings.Sum(x => x.Rate) / brand.Ratings.Count;
-                toAdd.UserRate = brand.Ratings.FirstOrDefault(r => r.Author?.Id == userId);
-
-            }
+                    Alcohol = b.AlcoholAmountPercent,
+                    KindName = b.Kind?.Name,
+                    Name = b.Name,
+                    Rate = b.Ratings.Count != 0 ? b.Ratings.Sum(x => x.Rate) / b.Ratings.Count : -1,
+                    UserRate = b.Ratings.FirstOrDefault(r => r.Author?.Id == userId)
+                }
+            ));
 
             result.CurrentPage = parameters.PageNumber;
             result.TotalPageCount = totalPages;

@@ -22,7 +22,7 @@ namespace PlatformaBrowaru.WebApi.Controllers
             _brandService = brandService;
         }
 
-        [HttpPost("AddBrand")]
+        [HttpPost]
         public async Task<IActionResult> AddBeerBrand([FromBody] BrandBindingModel brandBindingModel)
         {
             if (!ModelState.IsValid)

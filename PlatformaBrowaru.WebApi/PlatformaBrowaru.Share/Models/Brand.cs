@@ -33,6 +33,6 @@ namespace PlatformaBrowaru.Share.Models
         public bool IsAccepted { get; set; }
         public virtual List<Rating> Ratings { get; set; }
         public virtual List<Review> Reviews { get; set; }
-        public virtual BrandProduction BrandProduction { get; set; }
+        //public virtual BrandProduction BrandProduction { get; set; }
     }
 }

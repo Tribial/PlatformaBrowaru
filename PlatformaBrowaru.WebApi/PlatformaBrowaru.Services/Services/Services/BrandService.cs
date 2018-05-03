@@ -134,14 +134,6 @@ namespace PlatformaBrowaru.Services.Services.Services
             brand.Kind = _kindRepository.Get(k => k.Id == beerBrand.KindId);
             brand.IsPasteurized = beerBrand.IsPasteurized;
             brand.IsFiltered = beerBrand.IsFiltered;
-            brand.BrandProduction = new BrandProduction
-            {
-                EditedAt = DateTime.Now,
-                EditedBy = _userRepository.Get(u => u.Id == userId),
-                ProducedBy = _breweryRepository.Get(b => b.Id == beerBrand.BrandProduction.BreweryId),
-                ProducedFrom = beerBrand.BrandProduction.ProducedFrom,
-                ProducedTo = beerBrand.BrandProduction.ProducedTo,
-            };
             brand.CreationDate = beerBrand.CreationDate;
             brand.EditedAt = DateTime.Now;
             brand.EditedBy = _userRepository.Get(u => u.Id == userId);

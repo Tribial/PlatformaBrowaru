@@ -315,7 +315,7 @@ namespace PlatformaBrowaru.Services.Services.Services
         {
             var result = new ResponseDto<BaseModelDto>();
             var brand = _brandRepository.Get(x => x.Id == beerBrandId);
-            var yourRating = brand.Ratings.Find(rate => rate.Author.Id == userId);
+            var yourRating = brand.Ratings.Find(rate => rate.Author?.Id == userId);
             if (yourRating != null)
             {
                 yourRating.Rate = addRatingModel.Rating;

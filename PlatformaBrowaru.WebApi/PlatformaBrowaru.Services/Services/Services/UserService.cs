@@ -456,5 +456,11 @@ namespace PlatformaBrowaru.Services.Services.Services
             return result;
 
         }
+
+        public string GetUserRole(long userId)
+        {
+            var user = _userRepository.Get(u => u.Id == userId);
+            return user.Role;
+        }
     }
 }

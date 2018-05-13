@@ -297,7 +297,7 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             if (brands.TotalPageCount == 0)
             {
-                result.Errors.Add("Nie znaleziono projektów");
+                result.Errors.Add("Nie znaleziono takich marek piw");
                 return result;
             }
 

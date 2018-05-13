@@ -58,5 +58,27 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             return result;
         }
+
+        public ResponseDto<SearchResult<BrandToModerateDto>> GetBrandsToModerate(BrandSearchBindingModel parameters)
+        {
+            var result = new ResponseDto<SearchResult<BrandToModerateDto>>();
+
+            var brands = _moderationRepository.GetByParameters(parameters);
+
+            if (brands.TotalPageCount == 0)
+            {
+                result.Errors.Add("Nie znaleziono takich marek piw");
+                return result;
+            }
+
+            if (parameters.PageNumber > brands.TotalPageCount)
+            {
+                result.Errors.Add($"Strona {parameters.PageNumber} wykracza poza limit {brands.TotalPageCount}");
+                return result;
+            }
+
+            result.Object = brands;
+            return result;
+        }
     }
 }

@@ -17,10 +17,12 @@ namespace PlatformaBrowaru.WebApi.Controllers
     public class ModerationController : BaseController
     {
         private readonly IModerationService _moderationService;
+        private readonly IUserService _userService;
 
-        public ModerationController(IModerationService moderationService)
+        public ModerationController(IModerationService moderationService, IUserService userService)
         {
             _moderationService = moderationService;
+            _userService = userService;
         }
 
         [HttpPost]
@@ -35,6 +37,33 @@ namespace PlatformaBrowaru.WebApi.Controllers
             var userId = Convert.ToInt64(rawUserId);
 
             var result = await _moderationService.AddForModeration(userId, addToModeration);
+
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public IActionResult GetBrands([FromQuery] BrandSearchBindingModel parameters)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+            var role = _userService.GetUserRole(userId);
+
+            if (role != "Moderator" && role != "Administrator")
+            {
+                return Forbid();
+            }
+
+            var result = _moderationService.GetBrandsToModerate(parameters);
 
             if (result.ErrorOccured)
             {

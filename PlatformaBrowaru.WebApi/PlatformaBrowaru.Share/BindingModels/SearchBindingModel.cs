@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PlatformaBrowaru.Share.BindingModels
 {
-    public class BrandSearchBindingModel
+    public class SearchBindingModel
     {
         public int PageNumber { get; set; } = 1;
         public int Limit { get; set; } = 25;

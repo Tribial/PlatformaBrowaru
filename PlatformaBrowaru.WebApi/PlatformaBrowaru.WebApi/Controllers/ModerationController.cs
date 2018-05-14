@@ -47,7 +47,7 @@ namespace PlatformaBrowaru.WebApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetBrands([FromQuery] BrandSearchBindingModel parameters)
+        public IActionResult GetBrands([FromQuery] SearchBindingModel parameters)
         {
             if (!ModelState.IsValid)
             {

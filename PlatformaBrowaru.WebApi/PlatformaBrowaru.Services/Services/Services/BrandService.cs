@@ -289,7 +289,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             return result;
         }
 
-        public ResponseDto<SearchResult<BrandForSearchDto>> GetBrands(long userId, BrandSearchBindingModel parametes)
+        public ResponseDto<SearchResult<BrandForSearchDto>> GetBrands(long userId, SearchBindingModel parametes)
         {
             var result = new ResponseDto<SearchResult<BrandForSearchDto>>();
 

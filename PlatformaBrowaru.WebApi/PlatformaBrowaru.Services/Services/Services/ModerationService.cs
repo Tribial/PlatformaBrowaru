@@ -59,7 +59,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             return result;
         }
 
-        public ResponseDto<SearchResult<BrandToModerateDto>> GetBrandsToModerate(BrandSearchBindingModel parameters)
+        public ResponseDto<SearchResult<BrandToModerateDto>> GetBrandsToModerate(SearchBindingModel parameters)
         {
             var result = new ResponseDto<SearchResult<BrandToModerateDto>>();
 

@@ -38,7 +38,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             return await _dbContext.SaveChangesAsync() > 0;
         }
 
-        public SearchResult<BrandToModerateDto> GetByParameters(BrandSearchBindingModel parameters)
+        public SearchResult<BrandToModerateDto> GetByParameters(SearchBindingModel parameters)
         {
             IEnumerable<Brand> brands;
 
@@ -65,7 +65,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
 
             if (property == null)
             {
-                var defaultParameters = new BrandSearchBindingModel();
+                var defaultParameters = new SearchBindingModel();
                 property = typeof(Brand).GetProperty(defaultParameters.Sort);
             }
 

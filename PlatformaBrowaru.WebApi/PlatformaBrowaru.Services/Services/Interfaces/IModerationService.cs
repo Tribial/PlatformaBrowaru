@@ -11,6 +11,6 @@ namespace PlatformaBrowaru.Services.Services.Interfaces
     public interface IModerationService
     {
         Task<ResponseDto<BaseModelDto>> AddForModeration(long userId, AddToModerationBindingModel addToModeration);
-        ResponseDto<SearchResult<BrandToModerateDto>> GetBrandsToModerate( BrandSearchBindingModel parameters);
+        ResponseDto<SearchResult<BrandToModerateDto>> GetBrandsToModerate( SearchBindingModel parameters);
     }
 }

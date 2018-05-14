@@ -13,6 +13,6 @@ namespace PlatformaBrowaru.Data.Repository.Interfaces
         Task<bool> Insert(BrandToModerate brandToModerate);
         BrandToModerate Get(Func<BrandToModerate, bool> function);
         Task<bool> SaveAsync();
-        SearchResult<BrandToModerateDto> GetByParameters(BrandSearchBindingModel parameters);
+        SearchResult<BrandToModerateDto> GetByParameters(SearchBindingModel parameters);
     }
 }

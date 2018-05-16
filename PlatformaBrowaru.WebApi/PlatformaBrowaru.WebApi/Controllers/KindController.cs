@@ -37,5 +37,26 @@ namespace PlatformaBrowaru.WebApi.Controllers
 
             return Ok(result);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> AddKindAsync ([FromBody] KindBindingModel kindBindingModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = await _kindService.AddKindAsync(userId, kindBindingModel);
+
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
     }
 }

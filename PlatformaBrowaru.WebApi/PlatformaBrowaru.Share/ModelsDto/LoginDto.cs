@@ -10,6 +10,8 @@ namespace PlatformaBrowaru.Share.ModelsDto
         public string RefreshToken { get; set; }
         public DateTime TokenExpirationDate { get; set; }
         public DateTime RefreshTokenExpirationDate { get; set; }
+        public long Id { get; set; }
+        public string Email { get; set; }
 
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PlatformaBrowaru.Data.Data;
 using PlatformaBrowaru.Data.Repository.Interfaces;
@@ -24,6 +25,15 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
         public Kind Get(Func<Kind, bool> function)
         {
             return _dbContext.Kinds.FirstOrDefault(function);
+        }
+        public async Task<bool> InsertAsync(Kind kind)
+        {
+            await _dbContext.Kinds.AddAsync(kind);
+            return await SaveAsync();
+        }
+        public async Task<bool> SaveAsync()
+        {
+            return await _dbContext.SaveChangesAsync() > 0;
         }
 
         public SearchResult<KindDto> GetByParameters(SearchBindingModel parameters)

@@ -57,6 +57,8 @@ namespace PlatformaBrowaru.Services.Services.Services
             }
 
             result = await GenerateTokensAsync(user);
+            result.Object.Id = user.Id;
+            result.Object.Email = user.Email;
             return result;
         }
 

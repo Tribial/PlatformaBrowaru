@@ -115,13 +115,13 @@ namespace PlatformaBrowaru.WebApi.Controllers
         }
 
         [HttpDelete("Delete")]
-        public IActionResult DeleteUser([FromBody]string password)
+        public IActionResult DeleteUser([FromBody]PasswordBindingModel password)
         {
             var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
 
             var userId = Convert.ToInt64(rawUserId);
 
-            var result = _userService.DeleteUser(userId, password);
+            var result = _userService.DeleteUser(userId, password.Password);
             if (result.ErrorOccured)
             {
                 return BadRequest(result);

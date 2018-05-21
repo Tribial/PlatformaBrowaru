@@ -237,7 +237,8 @@ namespace PlatformaBrowaru.Services.Services.Services
                 result.Errors.Add("Coś poszło nie tak. Użytkownik o podanym Id nie istnieje.");
                 return result;
             }
-            result.Object.FullName = user.FirstName + user.LastName;
+            result.Object.FirstName = user.FirstName;
+            result.Object.LastName = user.LastName;
             result.Object.Email = user.Email;
             result.Object.Username = user.Username;
             result.Object.Description = user.Description;
@@ -294,7 +295,8 @@ namespace PlatformaBrowaru.Services.Services.Services
             {
                 var userObject = new GetUserDto()
                 {
-                    FullName = element.FirstName + element.LastName,
+                    FirstName = element.FirstName,
+                    LastName = element.LastName,
                     Email = element.Email,
                     Username = element.Username
                 };

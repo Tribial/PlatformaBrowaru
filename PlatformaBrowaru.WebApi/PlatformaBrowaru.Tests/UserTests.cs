@@ -398,7 +398,7 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
 
@@ -448,11 +448,11 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
             repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>()))
-                .Returns(Task.FromResult((RefreshToken) null));
+                .Returns(Task.FromResult((RefreshToken)null));
             repository.Setup(x => x.RemoveRefreshTokenAsync(It.IsAny<RefreshToken>())).Returns(Task.FromResult(true));
 
             var resultRaw = await controller.LogoutAsync();
@@ -534,7 +534,10 @@ namespace PlatformaBrowaru.Tests
         [Fact]
         public void ShouldDeleteUserWithSuccess()
         {
-            var password = "abc";
+            var password = new PasswordBindingModel
+            {
+                Password = "abc"
+            };
             var user = new ApplicationUser
             {
                 Email = "jan.kowalski@mail.com",
@@ -561,7 +564,7 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
@@ -586,7 +589,10 @@ namespace PlatformaBrowaru.Tests
         [Fact]
         public void ShouldDeleteUserFailedIfWrongPassword()
         {
-            var password = "abcdeeee";
+            var password = new PasswordBindingModel
+            {
+                Password = "abcdeeee"
+            };
             var user = new ApplicationUser
             {
                 Email = "jan.kowalski@mail.com",
@@ -638,7 +644,10 @@ namespace PlatformaBrowaru.Tests
         [Fact]
         public void ShouldDeleteUserFailedAndReturnErrorIfUserNotExist()
         {
-            var password = "abc";
+            var password = new PasswordBindingModel
+            {
+                Password = "abc"
+            };
             var user = new ApplicationUser
             {
                 Email = "jan.kowalski@mail.com",
@@ -665,7 +674,7 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
 
@@ -680,7 +689,10 @@ namespace PlatformaBrowaru.Tests
         [Fact]
         public void ShouldDeleteUserFailedAndReturnErrorIfUserNotLogged()
         {
-            var password = "abc";
+            var password = new PasswordBindingModel
+            {
+                Password = "abc"
+            };
             var user = new ApplicationUser
             {
                 Email = "jan.kowalski@mail.com",
@@ -707,12 +719,12 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
             repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>()))
-                .Returns(Task.FromResult((RefreshToken) null));
+                .Returns(Task.FromResult((RefreshToken)null));
 
             var resultRaw = controller.DeleteUser(password);
             var result = Assert.IsType<BadRequestObjectResult>(resultRaw);
@@ -725,7 +737,10 @@ namespace PlatformaBrowaru.Tests
         [Fact]
         public void ShouldDeleteUserFailedAndReturnErrorIfCouldNotSaveChanges()
         {
-            var password = "abc";
+            var password = new PasswordBindingModel
+            {
+                Password = "abc"
+            };
             var user = new ApplicationUser
             {
                 Email = "jan.kowalski@mail.com",
@@ -752,7 +767,7 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(true);
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
@@ -810,7 +825,7 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
             repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
@@ -867,7 +882,7 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
             repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
@@ -925,11 +940,11 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
             repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>()))
-                .Returns(Task.FromResult((RefreshToken) null));
+                .Returns(Task.FromResult((RefreshToken)null));
             repository.Setup(x => x.Exists(It.IsAny<Func<ApplicationUser, bool>>())).Returns(false);
             repository.Setup(x => x.Save()).Returns(true);
 
@@ -976,9 +991,9 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
-            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns((ApplicationUser) null);
+            repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns((ApplicationUser)null);
             repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
                 Task.FromResult(
                     new RefreshToken
@@ -1034,7 +1049,7 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
             repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
@@ -1092,7 +1107,7 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
             repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
@@ -1150,7 +1165,7 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
             repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
@@ -1208,7 +1223,7 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
             repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(
@@ -1264,7 +1279,7 @@ namespace PlatformaBrowaru.Tests
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            controller.ControllerContext.HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)};
+            controller.ControllerContext.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
 
             repository.Setup(x => x.Get(It.IsAny<Func<ApplicationUser, bool>>())).Returns(user);
             repository.Setup(x => x.GetRefreshTokenAsync(It.IsAny<long>())).Returns(

@@ -35,6 +35,11 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
         {
             return await _dbContext.SaveChangesAsync() > 0;
         }
+        public async Task<bool> UpdateAsync(Kind kind)
+        {
+            _dbContext.Kinds.Update(kind);
+            return await SaveAsync();
+        }
 
         public SearchResult<KindDto> GetByParameters(SearchBindingModel parameters)
         {

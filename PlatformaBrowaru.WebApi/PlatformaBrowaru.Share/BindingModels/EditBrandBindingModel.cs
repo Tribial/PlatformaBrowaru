@@ -41,7 +41,7 @@ namespace PlatformaBrowaru.Share.BindingModels
         public List<long> FermentationTypeIds { get; set; }
         public List<long> BrewingMethodIds { get; set; }
         public List<long> WrappingIds { get; set; }
-        public BrandProductionBindingModel BrandProduction { get; set; } = null;
+        //public BrandProductionBindingModel BrandProduction { get; set; } = null;
         public DateTime? CreationDate { get; set; } = null;
     }
 }

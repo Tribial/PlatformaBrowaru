@@ -11,5 +11,7 @@ namespace PlatformaBrowaru.Services.Services.Interfaces
     {
         ResponseDto<SearchResult<KindDto>> GetKinds(SearchBindingModel parameters);
         Task<ResponseDto<BaseModelDto>> AddKindAsync(long userId, KindBindingModel kindBindingModel);
+        Task<ResponseDto<BaseModelDto>> EditKindAsync(long userId, KindBindingModel kindBindingModel, long id);
+        Task<ResponseDto<BaseModelDto>> DeleteKindAsync(long userId, long id);
     }
 }

@@ -14,5 +14,6 @@ namespace PlatformaBrowaru.Data.Repository.Interfaces
         Task<bool> InsertAsync(Kind kind);
         Task<bool> SaveAsync();
         SearchResult<KindDto> GetByParameters(SearchBindingModel parameters);
+        Task<bool> UpdateAsync(Kind kind);
     }
 }

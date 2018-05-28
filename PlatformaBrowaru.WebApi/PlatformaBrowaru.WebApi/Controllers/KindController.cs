@@ -58,5 +58,47 @@ namespace PlatformaBrowaru.WebApi.Controllers
 
             return Ok(result);
         }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> EditKindAsync([FromBody] KindBindingModel kindBindingModel, long id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = await _kindService.EditKindAsync(userId, kindBindingModel, id);
+
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPatch("{id}/Delete")]
+        public async Task<IActionResult> DeleteKindAsync(long id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+
+            var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
+            var userId = Convert.ToInt64(rawUserId);
+
+            var result = await _kindService.DeleteKindAsync(userId, id);
+
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
     }
 }

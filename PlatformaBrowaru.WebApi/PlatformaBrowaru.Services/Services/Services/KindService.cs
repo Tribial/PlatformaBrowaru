@@ -54,8 +54,66 @@ namespace PlatformaBrowaru.Services.Services.Services
                 AddedBy = _userRepository.Get(u => u.Id == userId),
                 AddedAt = DateTime.Now
             };
+            if (_kindRepository.Get(x => x.Name == kind.Name) != null)
+            {
+                result.Errors.Add("Gatunek o podanej nazwie już istnieje.");
+                return result;
+            }
             var insertResult = await _kindRepository.InsertAsync(kind);
             if (!insertResult)
+            {
+                result.Errors.Add("Coś poszło nie tak! Spróbuj powonie później");
+                return result;
+            }
+
+            return result;
+        }
+
+        public async Task<ResponseDto<BaseModelDto>> EditKindAsync(long userId, KindBindingModel kindBindingModel, long id)
+        {
+
+            var result = new ResponseDto<BaseModelDto>();
+            var kindAlreadyExist = _kindRepository.Get(x => x.Name == kindBindingModel.Name && x.Id != id);
+            if (kindAlreadyExist != null)
+            {
+                result.Errors.Add("Gatunek o podanej nazwie już istnieje.");
+                return result;
+            }
+
+            var kind = _kindRepository.Get(x => x.Id == id);
+            kind.Name = kindBindingModel.Name;
+            kind.Description = kindBindingModel.Description;
+            kind.CreatedAt = kindBindingModel.CreatedAt;
+            kind.EditedBy = _userRepository.Get(x => x.Id == userId);
+            kind.EditedAt = DateTime.Now;
+
+            
+            var updateResult = await _kindRepository.UpdateAsync(kind);
+            if (!updateResult)
+            {
+                result.Errors.Add("Coś poszło nie tak! Spróbuj powonie później");
+                return result;
+            }
+
+            return result;
+        }
+
+        public async Task<ResponseDto<BaseModelDto>> DeleteKindAsync(long userId, long id)
+        {
+
+            var result = new ResponseDto<BaseModelDto>();
+            var user = _userRepository.Get(x => x.Id == userId);
+            if (user.Role == "User")
+            {
+                result.Errors.Add("Nie masz uprawnień, aby wykonać tę operację.");
+                return result;
+            }
+            var kind = _kindRepository.Get(x => x.Id == id);
+            kind.IsDeleted = true;
+
+
+            var updateResult = await _kindRepository.UpdateAsync(kind);
+            if (!updateResult)
             {
                 result.Errors.Add("Coś poszło nie tak! Spróbuj powonie później");
                 return result;

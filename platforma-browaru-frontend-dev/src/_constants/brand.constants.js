@@ -1,0 +1,5 @@
+export const brandConstants = {
+    ADD_BRAND_REQUEST: "ADD_BRAND_REQUEST",
+    ADD_BRAND_SUCCESS: "ADD_BRAND_SUCCESS",
+    ADD_BRAND_ERROR: "ADD_BRAND_ERROR"
+};

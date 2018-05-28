@@ -262,6 +262,11 @@ namespace PlatformaBrowaru.Services.Services.Services
             {
                 Errors = new List<string>(),
             };
+            if (user is null)
+            {
+                result.Errors.Add("Nieprawidłowy link!");
+                return result;
+            }
 
             if (user.IsVerified)
             {

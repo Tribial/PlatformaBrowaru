@@ -84,6 +84,8 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
                 property = typeof(Brand).GetProperty(defaultParameters.Sort);
             }
 
+            
+
             brands = parameters.Ascending
                 ? brands.OrderBy(b => property.GetValue(b))
                 : brands.OrderByDescending(b => property.GetValue(b));
@@ -96,7 +98,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
                 brandsForSearch.Add(new BrandForSearchDto
                 {
                     Alcohol = b.AlcoholAmountPercent,
-                    KindName = b.Kind?.Name,
+                    KindName = b.Kind.IsDeleted ? "Rodzaj usunięty" : b.Kind?.Name,
                     Name = b.Name,
                     Rate = b.Ratings.Count != 0 ? b.Ratings.Sum(x => x.Rate) / b.Ratings.Count : -1,
                     UserRate = b.Ratings.FirstOrDefault(r => r.Author?.Id == userId)

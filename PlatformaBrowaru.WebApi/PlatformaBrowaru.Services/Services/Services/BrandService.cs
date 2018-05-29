@@ -120,6 +120,12 @@ namespace PlatformaBrowaru.Services.Services.Services
             EditBrandBindingModel beerBrand)
         {
             var result = new ResponseDto<BaseModelDto>();
+            var user = _userRepository.Get(x => x.Id == userId);
+            if (user.Role == "User")
+            {
+                result.Errors.Add("Nie masz uprawnień do wykonania tej operacji.");
+                return result;
+            }
 
             var brand = _brandRepository.Get(u => u.Id == brandId);
             brand.Name = beerBrand.Name;
@@ -189,6 +195,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             if (!updateResult)
             {
                 result.Errors.Add("Wystąpił nieoczekiwany błąd, spróbuj ponownie później");
+                return result;
             }
 
             return result;

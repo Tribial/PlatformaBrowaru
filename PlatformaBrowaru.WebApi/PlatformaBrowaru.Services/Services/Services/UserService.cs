@@ -201,7 +201,7 @@ namespace PlatformaBrowaru.Services.Services.Services
                 CreatedAt = DateTime.Now,
                 Guid = Guid.NewGuid(),
                 Description = registerModel.Description,
-                Role = registerModel.Role,
+                Role = "User",
                 Gender = registerModel.Gender,
                 DateOfBirth = registerModel.DateOfBirth
             };

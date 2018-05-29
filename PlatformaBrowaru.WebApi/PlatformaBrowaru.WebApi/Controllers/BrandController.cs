@@ -47,16 +47,9 @@ namespace PlatformaBrowaru.WebApi.Controllers
 
             var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
             var userId = Convert.ToInt64(rawUserId);
-
-            ResponseDto<BaseModelDto> result;
-            if (userId == 2) //Trzeba zmienić na role później
-            {
-                result = await _brandService.EditBeerBrandAsync(userId, id, beerBrand);
-            }
-            else
-            {
-                return Unauthorized();
-            }
+            
+            var result = await _brandService.EditBeerBrandAsync(userId, id, beerBrand);
+            
 
             if (result.ErrorOccured)
             {

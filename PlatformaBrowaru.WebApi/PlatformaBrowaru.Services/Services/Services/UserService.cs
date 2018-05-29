@@ -201,7 +201,7 @@ namespace PlatformaBrowaru.Services.Services.Services
                 CreatedAt = DateTime.Now,
                 Guid = Guid.NewGuid(),
                 Description = registerModel.Description,
-                Role = registerModel.Role,
+                Role = "User",
                 Gender = registerModel.Gender,
                 DateOfBirth = registerModel.DateOfBirth
             };
@@ -215,7 +215,7 @@ namespace PlatformaBrowaru.Services.Services.Services
 
 
             await _emailService.SendEmail(user.Email, "Platforma Browaru - aktywacja",
-                $"Witaj {user.Username}!\n Aby aktywować swoje konto kliknij w poniższy link:\n http://localhost:18831/Users/Activate/" +
+                $"Witaj {user.Username}!\n Aby aktywować swoje konto kliknij w poniższy link:\n http://localhost:3000/Users/Activate/" +
                 user.Guid);
 
             return result;
@@ -262,6 +262,11 @@ namespace PlatformaBrowaru.Services.Services.Services
             {
                 Errors = new List<string>(),
             };
+            if (user is null)
+            {
+                result.Errors.Add("Nieprawidłowy link!");
+                return result;
+            }
 
             if (user.IsVerified)
             {
@@ -391,7 +396,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             }
 
             _emailService.SendEmail(user.Email, "Platforma Browaru - aktywacja",
-                $"Witaj {user.FirstName}!\n Aby aktywować swoje konto kliknij w poniższy link:\n http://localhost:18831/Users/Activate/" +
+                $"Witaj {user.FirstName}!\n Aby aktywować swoje konto kliknij w poniższy link:\n http://localhost:3000/Users/Activate/" +
                 user.Guid);
 
             return result;

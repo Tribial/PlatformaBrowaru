@@ -38,7 +38,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
 
         public Review GetReview(Func<Review, bool> function)
         {
-            return _dbContext.Reviews.FirstOrDefault(function);
+            return _dbContext.Reviews.Include(r => r.Author).FirstOrDefault(function);
         }
 
         public async Task<bool> SaveAsync()
@@ -97,8 +97,13 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             brands.ToList().ForEach(b => 
                 brandsForSearch.Add(new BrandForSearchDto
                 {
+                    Id = b.Id,
                     Alcohol = b.AlcoholAmountPercent,
-                    KindName = b.Kind.IsDeleted ? "Rodzaj usunięty" : b.Kind?.Name,
+                    KindName = b.Kind == null ? 
+                        "Brak rodzaju" : 
+                        (b.Kind.IsDeleted ? 
+                            "Rodzaj usunięty" : 
+                            b.Kind?.Name),
                     Name = b.Name,
                     Rate = b.Ratings.Count != 0 ? b.Ratings.Sum(x => x.Rate) / b.Ratings.Count : -1,
                     UserRate = b.Ratings.FirstOrDefault(r => r.Author?.Id == userId)

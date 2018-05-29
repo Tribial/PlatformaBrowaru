@@ -184,6 +184,18 @@ namespace PlatformaBrowaru.WebApi.Controllers
             return Ok(result);
         }
 
+        [HttpGet("{beerBrandId}/Reviews/{reviewId}")]
+        public IActionResult GetReview(long beerBrandId, long reviewId)
+        {
+            var result = _brandService.GetReview(beerBrandId, reviewId);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
         [HttpPatch("{beerBrandId}/Reviews/{reviewId}/Delete")]
         public async Task<IActionResult> DeleteReviewAsync(long beerBrandId, long reviewId)
         {

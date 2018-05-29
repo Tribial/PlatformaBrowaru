@@ -77,6 +77,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             kinds.ToList().ForEach(k => 
                 kindsForSearch.Add(new KindDto
                 {
+                    Id = k.Id,
                     Name = k.Name,
                     CreationDate = k.CreatedAt,
                     Description = k.Description

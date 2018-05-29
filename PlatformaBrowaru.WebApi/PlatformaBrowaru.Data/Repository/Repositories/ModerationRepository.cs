@@ -80,6 +80,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             brands.ToList().ForEach(b =>
                 brandsForSearch.Add(new BrandToModerateDto
                 {
+                    Id = b.Id,
                     Alcohol = b.AlcoholAmountPercent,
                     Name = b.Name,
                     Rate = b.Ratings.Count != 0 ? b.Ratings.Sum(x => x.Rate) / b.Ratings.Count : -1,

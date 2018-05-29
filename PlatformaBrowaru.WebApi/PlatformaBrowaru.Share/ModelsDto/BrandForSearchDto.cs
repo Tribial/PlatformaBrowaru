@@ -7,6 +7,7 @@ namespace PlatformaBrowaru.Share.ModelsDto
 {
     public class BrandForSearchDto : BaseModelDto
     {
+        public long Id { get; set; }
         public string Name { get; set; }
         //public SimpleBrewingGroupDto BrewingGroup { get; set; }
         public string KindName { get; set; }

@@ -455,5 +455,30 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             return result;
         }
+
+        public ResponseDto<ReviewDto> GetReview(long beerBrandId, long reviewId)
+        {
+            var review = _brandRepository.GetReview(r => r.Id == reviewId);
+            var brand = _brandRepository.Get(b => b.Id == beerBrandId);
+            var result = new ResponseDto<ReviewDto>();
+            if (review == null || brand == null)
+            {
+                result.Errors.Add("Nie znaleziono obiektu");
+                return result;
+            }
+
+            result.Object = new ReviewDto
+            {
+                BrandName = brand.Name,
+                AddedDate = review.AddedAt,
+                EditionDate = review.EditedAt,
+                UserNickname = review.Author?.Email,
+                Title = review.Title,
+                Content = review.Content
+
+            };
+
+            return result;
+        }
     }
 }

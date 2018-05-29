@@ -12,7 +12,7 @@ using PlatformaBrowaru.Share.ModelsDto;
 namespace PlatformaBrowaru.WebApi.Controllers
 {
     [Route("Brands")]
-    //[Authorize]
+    [Authorize]
     public class BrandController : BaseController
     {
         private readonly IBrandService _brandService;
@@ -159,7 +159,7 @@ namespace PlatformaBrowaru.WebApi.Controllers
         }
 
         [HttpPatch("{beerBrandId}/Reviews/{reviewId}/Edit")]
-        public async Task<IActionResult> EditReviewAsync(long beerBrandId, [FromBody] EditReviewBindingModel editReviewModel, long reviewId)
+        public async Task<IActionResult> EditReviewAsync(long beerBrandId, long reviewId, [FromBody] EditReviewBindingModel editReviewModel)
         {
             if (!ModelState.IsValid)
             {

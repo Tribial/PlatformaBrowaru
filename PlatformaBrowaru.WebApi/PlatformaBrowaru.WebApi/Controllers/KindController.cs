@@ -27,14 +27,15 @@ namespace PlatformaBrowaru.WebApi.Controllers
             {
                 return BadRequest(ModelStateErrors());
             }
-
+            parameters.PageNumber = parameters.PageNumber + 1;
             var result = _kindService.GetKinds(parameters);
 
             if (result.ErrorOccured)
             {
                 return BadRequest(result);
             }
-
+            result.Object.CurrentPage = result.Object.CurrentPage - 1;
+            result.Object.TotalPageCount = result.Object.TotalPageCount - 1;
             return Ok(result);
         }
 

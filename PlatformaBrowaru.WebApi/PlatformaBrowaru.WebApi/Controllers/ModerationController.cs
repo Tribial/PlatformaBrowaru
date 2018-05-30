@@ -54,6 +54,7 @@ namespace PlatformaBrowaru.WebApi.Controllers
                 return BadRequest(ModelStateErrors());
             }
 
+            parameters.PageNumber = parameters.PageNumber + 1;
             var rawUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
             var userId = Convert.ToInt64(rawUserId);
             var role = _userService.GetUserRole(userId);
@@ -70,6 +71,8 @@ namespace PlatformaBrowaru.WebApi.Controllers
                 return BadRequest(result);
             }
 
+            result.Object.CurrentPage = result.Object.CurrentPage - 1;
+            result.Object.TotalPageCount = result.Object.TotalPageCount - 1;
             return Ok(result);
         }
     }

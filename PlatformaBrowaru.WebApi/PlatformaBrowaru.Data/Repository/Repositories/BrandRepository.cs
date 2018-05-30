@@ -41,6 +41,62 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             return _dbContext.Reviews.Include(r => r.Author).FirstOrDefault(function);
         }
 
+        public SearchResult<ReviewsForSearchDto> GetReviewsByParameters(long beerBrandId, ReviewSearchBindingModel parameters)
+        {
+            IEnumerable<Review> reviews;
+
+            if (parameters.Query != null)
+            {
+                reviews = _dbContext.Reviews.Include(b => b.Author).Where(b =>
+                    b.Brand.Id == beerBrandId &&
+                    (b.Title.Contains(parameters.Query) ||
+                    b.Content.Contains(parameters.Query) ||
+                     b.Author.FirstName.Contains(parameters.Query) ||
+                     b.Author.LastName.Contains(parameters.Query))
+                ).ToList();
+            }
+            else
+            {
+                reviews = _dbContext.Reviews.Include(b => b.Author).Where(b => b.Brand.Id == beerBrandId).ToList();
+            }
+
+            var totalPages = (int)Math.Ceiling((decimal)reviews.Count() / parameters.Limit);
+
+            var property = typeof(Review).GetProperty(parameters.Sort.FirstCharToUpper());
+
+            if (property == null)
+            {
+                var defaultParameters = new ReviewSearchBindingModel();
+                property = typeof(Review).GetProperty(defaultParameters.Sort);
+            }
+
+
+
+            reviews = parameters.Ascending
+                ? reviews.OrderBy(b => property.GetValue(b))
+                : reviews.OrderByDescending(b => property.GetValue(b));
+
+            reviews = reviews.Skip(parameters.Limit * (parameters.PageNumber - 1)).Take(parameters.Limit);
+
+            var result = new SearchResult<ReviewsForSearchDto>();
+            var reviewsForSearch = new List<ReviewsForSearchDto>();
+            reviews.ToList().ForEach(b =>
+                reviewsForSearch.Add(new ReviewsForSearchDto
+                {
+                    Id = b.Id,
+                    UserNickname = b.Author.Email,
+                    Title = b.Title,
+                    AddedAt = b.AddedAt
+                }
+            ));
+
+            result.CurrentPage = parameters.PageNumber;
+            result.TotalPageCount = totalPages;
+            result.Results = reviewsForSearch;
+
+            return result;
+        }
+
         public async Task<bool> SaveAsync()
         {
             return await _dbContext.SaveChangesAsync() > 0;

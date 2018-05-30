@@ -310,11 +310,33 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             if (parametes.PageNumber > brands.TotalPageCount)
             {
-                result.Errors.Add($"Strona {parametes.PageNumber} wykracza poza limit {brands.TotalPageCount}");
+                result.Errors.Add($"Strona {parametes.PageNumber - 1} wykracza poza limit {brands.TotalPageCount - 1}");
                 return result;
             }
 
             result.Object = brands;
+            return result;
+        }
+
+        public ResponseDto<SearchResult<ReviewsForSearchDto>> GetReviews(long beerBrandId, ReviewSearchBindingModel parametes)
+        {
+            var result = new ResponseDto<SearchResult<ReviewsForSearchDto>>();
+
+            var reviews = _brandRepository.GetReviewsByParameters(beerBrandId, parametes);
+
+            if (reviews.TotalPageCount == 0)
+            {
+                result.Errors.Add("Nie znaleziono takich marek piw");
+                return result;
+            }
+
+            if (parametes.PageNumber > reviews.TotalPageCount)
+            {
+                result.Errors.Add($"Strona {parametes.PageNumber - 1} wykracza poza limit {reviews.TotalPageCount - 1}");
+                return result;
+            }
+
+            result.Object = reviews;
             return result;
         }
 

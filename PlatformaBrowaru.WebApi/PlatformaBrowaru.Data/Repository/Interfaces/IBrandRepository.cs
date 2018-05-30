@@ -17,5 +17,6 @@ namespace PlatformaBrowaru.Data.Repository.Interfaces
         Task<bool> UpdateAsync(Brand brand);
         SearchResult<BrandForSearchDto> GetByParameters(long userId, SearchBindingModel parametes);
         Review GetReview(Func<Review, bool> function);
+        SearchResult<ReviewsForSearchDto> GetReviewsByParameters(long beerBrandId, ReviewSearchBindingModel parameters);
     }
 }

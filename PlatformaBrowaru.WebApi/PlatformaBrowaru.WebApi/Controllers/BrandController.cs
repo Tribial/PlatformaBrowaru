@@ -208,5 +208,25 @@ namespace PlatformaBrowaru.WebApi.Controllers
             }
             return Ok(result);
         }
+
+        [HttpGet("{beerBrandId}/Reviews")]
+        public IActionResult GetReviews(long beerBrandId, ReviewSearchBindingModel parameters)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelStateErrors());
+            }
+            parameters.PageNumber = parameters.PageNumber + 1;
+
+            var result = _brandService.GetReviews(beerBrandId, parameters);
+
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
+            result.Object.CurrentPage = result.Object.CurrentPage - 1;
+            result.Object.TotalPageCount = result.Object.TotalPageCount - 1;
+            return Ok(result);
+        }
     }
 }

@@ -49,6 +49,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
                     (b.Name.Contains(parameters.Query) ||
                     b.Kind.Name.Contains(parameters.Query))
                 ).ToList();
+                
             }
             else
             {
@@ -58,6 +59,19 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             var brandsToModerate = _dbContext.BrandsToModerate.ToList();
 
             brands = brands.Where(b => brandsToModerate.Select(btm => btm.Id).ToList().Contains(b.Id));
+
+            if (!string.IsNullOrEmpty(parameters.Query))
+            {
+                brands = brands.Concat(_dbContext.Brands.Include(b => b.Kind).Include(b => b.Ratings).Where(b =>
+                    !b.IsAccepted &&
+                    (b.Name.Contains(parameters.Query) ||
+                     b.Kind.Name.Contains(parameters.Query))
+                ).ToList());
+            }
+            else
+            {
+                brands = brands.Concat(_dbContext.Brands.Include(b => b.Kind).Include(b => b.Ratings).Where(b => !b.IsAccepted).ToList());
+            }
 
             var totalPages = (int)Math.Ceiling((decimal)brands.Count() / parameters.Limit);
 
@@ -84,8 +98,8 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
                     Alcohol = b.AlcoholAmountPercent,
                     Name = b.Name,
                     Rate = b.Ratings.Count != 0 ? b.Ratings.Sum(x => x.Rate) / b.Ratings.Count : -1,
-                    UserNickname = b.AddedBy.Email,
-                    Status = "Do moderacji"
+                    UserNickname = b.AddedBy?.Email,
+                    Status = b.IsAccepted ? "Do moderacji" : "Do akceptacji"
                 }
             ));
 

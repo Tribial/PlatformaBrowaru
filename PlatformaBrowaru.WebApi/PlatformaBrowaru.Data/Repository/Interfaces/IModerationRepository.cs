@@ -14,5 +14,6 @@ namespace PlatformaBrowaru.Data.Repository.Interfaces
         BrandToModerate Get(Func<BrandToModerate, bool> function);
         Task<bool> SaveAsync();
         SearchResult<BrandToModerateDto> GetByParameters(SearchBindingModel parameters);
+        Task<bool> Remove(BrandToModerate brandToModerate);
     }
 }

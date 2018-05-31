@@ -109,5 +109,11 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
 
             return result;
         }
+
+        public async Task<bool> Remove(BrandToModerate brandToModerate)
+        {
+            _dbContext.BrandsToModerate.Remove(brandToModerate);
+            return await SaveAsync();
+        }
     }
 }

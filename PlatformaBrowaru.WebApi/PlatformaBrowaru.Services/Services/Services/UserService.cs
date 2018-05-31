@@ -124,6 +124,8 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             result.Object.Token = new JwtSecurityTokenHandler().WriteToken(token);
             result.Object.TokenExpirationDate = expirationDate;
+            result.Object.Role = user.Role ?? "";
+
 
             var refreshTokenRaw = user.Email + Guid.NewGuid() + user.Id + DateTime.Now.ToShortDateString() + secretKey;
             var refreshToken = new RefreshToken()

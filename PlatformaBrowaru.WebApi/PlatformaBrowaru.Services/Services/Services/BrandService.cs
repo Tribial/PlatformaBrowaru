@@ -20,10 +20,11 @@ namespace PlatformaBrowaru.Services.Services.Services
         private readonly IKindRepository _kindRepository;
         private readonly IBreweryRepository _breweryRepository;
         private readonly IRatingRepository _ratingRepository;
+        private readonly IModerationRepository _moderationRepository;
 
         public BrandService(IUserRepository userRepository, IBrandRepository brandRepository,
             IEnumerationRepository enumerationRepository, IKindRepository kindRepository,
-            IBreweryRepository breweryRepository, IRatingRepository ratingRepository)
+            IBreweryRepository breweryRepository, IRatingRepository ratingRepository, IModerationRepository moderationRepository)
         {
             _userRepository = userRepository;
             _brandRepository = brandRepository;
@@ -31,6 +32,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             _kindRepository = kindRepository;
             _breweryRepository = breweryRepository;
             _ratingRepository = ratingRepository;
+            _moderationRepository = moderationRepository;
         }
 
         public async Task<ResponseDto<BaseModelDto>> AddBeerBrandAsync(long userId, BrandBindingModel brandBindingModel)
@@ -188,7 +190,19 @@ namespace PlatformaBrowaru.Services.Services.Services
                         WrappingId = v
                     })
             );
-
+            if (user.Role == "Moderator" || user.Role == "Administrator")
+            {
+                brand.IsAccepted = true;
+                var brandToModerate = _moderationRepository.Get(m => m.Id == brand.Id);
+                if (brandToModerate != null)
+                {
+                    var deletionResult = await _moderationRepository.Remove(brandToModerate);
+                    if (!deletionResult)
+                    {
+                        result.Errors.Add("Wystąpił nieoczekiwany błąd, spróbuj ponownie później");
+                    }
+                }
+            }
 
             var updateResult = await _brandRepository.UpdateAsync(brand);
 

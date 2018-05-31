@@ -149,6 +149,8 @@ namespace PlatformaBrowaru.Tests
             var enumerationRepository = new Mock<IEnumerationRepository>();
             var kindRepository = new Mock<IKindRepository>();
             var breweryRepository = new Mock<IBreweryRepository>();
+            var moderationRepository = new Mock<IModerationRepository>();
+
 
             brandRepository.Setup(x => x.InsertAsync(It.IsAny<Brand>())).Returns(Task.FromResult(true));
             brandRepository.Setup(x => x.UpdateAsync(It.IsAny<Brand>())).Returns(Task.FromResult(true));
@@ -160,7 +162,7 @@ namespace PlatformaBrowaru.Tests
             //breweryRepository.Setup(x => x.Get(It.IsAny<Func<Brewery, bool>>())).Returns(brewery);
 
             var brandService = new BrandService(userRepository.Object, brandRepository.Object,
-                enumerationRepository.Object, kindRepository.Object, breweryRepository.Object, ratingRepository.Object);
+                enumerationRepository.Object, kindRepository.Object, breweryRepository.Object, ratingRepository.Object, moderationRepository.Object);
             var brandController = new BrandController(brandService)
             {
                 ControllerContext = {HttpContext = new DefaultHttpContext {User = new ClaimsPrincipal(identity)}}

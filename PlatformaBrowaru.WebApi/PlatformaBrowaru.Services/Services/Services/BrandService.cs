@@ -51,6 +51,7 @@ namespace PlatformaBrowaru.Services.Services.Services
                 TasteFullness = brandBindingModel.TasteFullness ?? -1,
                 Sweetness = brandBindingModel.Sweetness ?? -1,
                 Kind = _kindRepository.Get(k => k.Id == brandBindingModel.KindId),
+                BrandFermentationTypes = new List<BrandFermentationType>(),
                 BrandSeasons = new List<BrandSeason>(),
                 BrandBrewingMethods = new List<BrandBrewingMethod>(),
                 BrandWrappings = new List<BrandWrapping>(),
@@ -63,7 +64,11 @@ namespace PlatformaBrowaru.Services.Services.Services
                 Ratings = new List<Rating>(),
                 Reviews = new List<Review>(),
             };
-
+            if (_brandRepository.Get(x => x.Name == brand.Name) != null)
+            {
+                result.Errors.Add("Gatunek o podanej nazwie już istnieje.");
+                return result;
+            }
             var insertResult = await _brandRepository.InsertAsync(brand);
 
             if (!insertResult)
@@ -103,6 +108,17 @@ namespace PlatformaBrowaru.Services.Services.Services
                         BrandId = brand.Id,
                         Wrapping = _enumerationRepository.GetWrapping(er => er.Id == w),
                         WrappingId = w
+                    })
+            );
+
+            brandBindingModel.FermentationTypeIds.ForEach(s =>
+                brand.BrandFermentationTypes.Add(
+                    new BrandFermentationType
+                    {
+                        Brand = brand,
+                        BrandId = brand.Id,
+                        FermentationType = _enumerationRepository.GetFermentation(x => x.Id == s),
+                        FermentationTypeId = s
                     })
             );
 

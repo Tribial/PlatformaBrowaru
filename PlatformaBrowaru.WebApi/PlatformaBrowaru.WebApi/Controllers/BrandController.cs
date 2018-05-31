@@ -34,6 +34,10 @@ namespace PlatformaBrowaru.WebApi.Controllers
             var userId = Convert.ToInt64(rawUserId);
 
             var result = await _brandService.AddBeerBrandAsync(userId, brandBindingModel);
+            if (result.ErrorOccured)
+            {
+                return BadRequest(result);
+            }
             return Ok(result);
         }
 

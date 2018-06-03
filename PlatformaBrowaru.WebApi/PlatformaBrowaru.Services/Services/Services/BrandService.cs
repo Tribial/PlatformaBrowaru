@@ -138,7 +138,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             EditBrandBindingModel beerBrand)
         {
             var result = new ResponseDto<BaseModelDto>();
-            var user = _userRepository.Get(x => x.Id == userId);
+            var user = _userRepository.Get(x => x.Id == userId);//without tracking
 
             var brand = _brandRepository.Get(u => u.Id == brandId);
             if (user.Role == "User" && brand.AddedBy?.Id != userId)

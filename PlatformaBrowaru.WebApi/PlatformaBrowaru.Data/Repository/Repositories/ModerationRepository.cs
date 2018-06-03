@@ -70,7 +70,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             }
             else
             {
-                brands = brands.Concat(_dbContext.Brands.Include(b => b.Kind).Include(b => b.Ratings).Where(b => !b.IsAccepted).ToList());
+                brands = brands.Concat(_dbContext.Brands.Include(b => b.Kind).Include(b => b.Ratings).Where(b => !b.IsAccepted && b.DeletedBy == null).ToList());
             }
 
             var totalPages = (int)Math.Ceiling((decimal)brands.Count() / parameters.Limit);

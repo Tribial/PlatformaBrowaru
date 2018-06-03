@@ -20,24 +20,44 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             _dbContext = dbContext;
         }
 
-        public Season GetSeason(Func<Season, bool> function)
+        public Season GetSeasonWithoutTracking(Func<Season, bool> function)
         {
             return _dbContext.Seasons.AsNoTracking().FirstOrDefault(function);
         }
 
-        public BrewingMethod GetBrewingMethod(Func<BrewingMethod, bool> function)
+        public BrewingMethod GetBrewingMethodWithoutTracking(Func<BrewingMethod, bool> function)
         {
             return _dbContext.BrewingMethods.AsNoTracking().FirstOrDefault(function);
         }
 
-        public Wrapping GetWrapping(Func<Wrapping, bool> function)
+        public Wrapping GetWrappingWithoutTracking(Func<Wrapping, bool> function)
         {
             return _dbContext.Wrappings.AsNoTracking().FirstOrDefault(function);
         }
 
-        public FermentationType GetFermentation (Func<FermentationType, bool> function)
+        public FermentationType GetFermentationWithoutTracking(Func<FermentationType, bool> function)
         {
             return _dbContext.FermentationTypes.AsNoTracking().FirstOrDefault(function);
+        }
+
+        public Season GetSeason(Func<Season, bool> function)
+        {
+            return _dbContext.Seasons.FirstOrDefault(function);
+        }
+
+        public BrewingMethod GetBrewingMethod(Func<BrewingMethod, bool> function)
+        {
+            return _dbContext.BrewingMethods.FirstOrDefault(function);
+        }
+
+        public Wrapping GetWrapping(Func<Wrapping, bool> function)
+        {
+            return _dbContext.Wrappings.FirstOrDefault(function);
+        }
+
+        public FermentationType GetFermentation(Func<FermentationType, bool> function)
+        {
+            return _dbContext.FermentationTypes.FirstOrDefault(function);
         }
 
         public async Task<bool> ClearEnumerationsForBrand(long brandId)

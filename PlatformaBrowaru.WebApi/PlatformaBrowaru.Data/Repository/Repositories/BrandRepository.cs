@@ -31,8 +31,15 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
 
         public Brand Get(Func<Brand, bool> function)
         {
-            var result = _dbContext.Brands.AsNoTracking().Include(b =>
-                b.BrandWrappings).Include(b => b.BrandSeasons).Include(b => b.BrandFermentationTypes).Include(b => b.BrandBrewingMethods).Include(b => b.Reviews).Include(b => b.Ratings).ThenInclude(r => r.Author).Include(b => b.Kind).AsNoTracking().FirstOrDefault(function);
+            var result = _dbContext.Brands
+                .Include(b => b.BrandWrappings)
+                .Include(b => b.BrandSeasons)
+                .Include(b => b.BrandFermentationTypes)
+                .Include(b => b.BrandBrewingMethods)
+                .Include(b => b.Reviews).ThenInclude(b => b.Author)
+                .Include(b => b.Ratings).ThenInclude(r => r.Author)
+                .Include(b => b.Kind)
+                .FirstOrDefault(function);
             return result;
         }
 
@@ -100,6 +107,12 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
         public async Task<bool> UpdateReviewAsync(Review review)
         {
             _dbContext.Reviews.Update(review);
+            return await SaveAsync();
+        }
+
+        public async Task<bool> InsertReviewAsync(Review review)
+        {
+            await _dbContext.Reviews.AddAsync(review);
             return await SaveAsync();
         }
 

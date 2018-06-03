@@ -417,27 +417,25 @@ namespace PlatformaBrowaru.Services.Services.Services
         {
             var result = new ResponseDto<BaseModelDto>();
             var brand = _brandRepository.Get(x => x.Id == beerBrandId);
-            var yourReview = brand.Reviews.Find(review => review.Author.Id == userId);
-            if (yourReview == null)
-            {
-                brand.Reviews.Add(new Review
-                {
-                    Author = _userRepository.Get(u => u.Id == userId),
-                    Brand = brand,
-                    Title = addReviewModel.Title,
-                    Content = addReviewModel.Content,
-                    AddedAt = DateTime.Now,
-                    EditedAt = null,
-                    IsDeleted = false
-                });
-            }
-            else
+            var yourReview = brand.Reviews.FirstOrDefault(r => r.Author.Id == userId);
+            if (yourReview != null)
             {
                 result.Errors.Add("Już dodałeś recenzję tej marki.");
                 return result;
             }
-            var updateResult = await _brandRepository.UpdateAsync(brand);
-            if (!updateResult)
+            var review = new Review
+            {
+                Author = _userRepository.Get(u => u.Id == userId),
+                Brand = brand,
+                Title = addReviewModel.Title,
+                Content = addReviewModel.Content,
+                AddedAt = DateTime.Now,
+                EditedAt = null,
+                IsDeleted = false
+            };
+
+            var addResult = await _brandRepository.InsertReviewAsync(review);
+            if (!addResult)
             {
                 result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później");
                 return result;

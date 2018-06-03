@@ -30,7 +30,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
 
         public BrandToModerate Get(Func<BrandToModerate, bool> function)
         {
-            return _dbContext.BrandsToModerate.FirstOrDefault(function);
+            return _dbContext.BrandsToModerate.Include(b => b.Brand).FirstOrDefault(function);
         }
 
         public async Task<bool> SaveAsync()

@@ -220,7 +220,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             if (user.Role == "Moderator" || user.Role == "Administrator")
             {
                 brand.IsAccepted = true;
-                var brandToModerate = _moderationRepository.Get(m => m.Id == brand.Id);
+                var brandToModerate = _moderationRepository.Get(m => m.Brand.Id == brand.Id);
                 if (brandToModerate != null)
                 {
                     var deletionResult = await _moderationRepository.Remove(brandToModerate);

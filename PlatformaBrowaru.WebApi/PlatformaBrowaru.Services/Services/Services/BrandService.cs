@@ -353,6 +353,7 @@ namespace PlatformaBrowaru.Services.Services.Services
             var result = new ResponseDto<SearchResult<ReviewsForSearchDto>>();
 
             var reviews = _brandRepository.GetReviewsByParameters(beerBrandId, parametes);
+            
 
             if (reviews.TotalPageCount == 0)
             {
@@ -490,26 +491,31 @@ namespace PlatformaBrowaru.Services.Services.Services
         {
             var result = new ResponseDto<BaseModelDto>();
             var brand = _brandRepository.Get(x => x.Id == beerBrandId);
-            var yourReview = brand.Reviews.Find(review => review.Author.Id == userId);
-            if (yourReview != null)
+            var yourReview = _brandRepository.GetReview(r => r.Id == reviewId);
+
+            if (yourReview == null)
+            {
+                result.Errors.Add($"Recenzja o id {reviewId} nie istnieje");
+                return result;
+            }
+
+            if (yourReview.Author.Id != userId && userRole != "Moderator" && userRole != "Administrator")
+            {
+                result.Errors.Add("Nie masz odpowiednich uprawnień, aby usunąć tę recenzję");
+                return result;
+            }
+
+            if (yourReview.Author.Id != userId && (userRole == "Moderator" || userRole == "Administrator"))
             {
                 yourReview.IsDeleted = true;
             }
-            else
+
+            if (yourReview.Author.Id == userId)
             {
-                if (userRole == "Moderator" || userRole == "Administrator")
-                {
-                    var review = _brandRepository.GetReview(r => r.Id == reviewId);
-                    review.IsDeleted = true;
-                }
-                else
-                {
-                    result.Errors.Add("Nie masz odpowiednich uprawnień, aby usunąć tę recenzję");
-                    return result;
-                }
+                yourReview.IsDeleted = true;
             }
 
-            var updateResult = await _brandRepository.UpdateAsync(brand);
+            var updateResult = await _brandRepository.UpdateReviewAsync(yourReview);
             if (!updateResult)
             {
                 result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później.");

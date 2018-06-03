@@ -55,7 +55,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             if (parameters.Query != null)
             {
                 reviews = _dbContext.Reviews.Include(b => b.Author).Where(b =>
-                    b.Brand.Id == beerBrandId &&
+                    b.Brand.Id == beerBrandId && b.IsDeleted == false &&
                     (b.Title.Contains(parameters.Query) ||
                     b.Content.Contains(parameters.Query) ||
                      b.Author.FirstName.Contains(parameters.Query) ||

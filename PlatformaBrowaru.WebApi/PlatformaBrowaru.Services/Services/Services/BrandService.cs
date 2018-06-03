@@ -139,13 +139,14 @@ namespace PlatformaBrowaru.Services.Services.Services
         {
             var result = new ResponseDto<BaseModelDto>();
             var user = _userRepository.Get(x => x.Id == userId);
-            if (user.Role == "User")
+
+            var brand = _brandRepository.Get(u => u.Id == brandId);
+            if (user.Role == "User" && brand.AddedBy?.Id != userId)
             {
                 result.Errors.Add("Nie masz uprawnień do wykonania tej operacji.");
                 return result;
             }
 
-            var brand = _brandRepository.Get(u => u.Id == brandId);
             brand.Name = beerBrand.Name;
             brand.Description = beerBrand.Description;
             brand.Ingredients = beerBrand.Ingredients;
@@ -162,47 +163,57 @@ namespace PlatformaBrowaru.Services.Services.Services
             brand.EditedAt = DateTime.Now;
             brand.EditedBy = _userRepository.Get(u => u.Id == userId);
 
+            var clearingResult = await _enumerationRepository.ClearEnumerationsForBrand(brand.Id);
+            if (!clearingResult)
+            {
+                result.Errors.Add("Wystąpił nieoczekiwany błąd, spróbuj ponownie później");
+                return result;
+            }
+
+            brand.BrandSeasons = new List<BrandSeason>();
             beerBrand.SeasonIds.ForEach(z =>
                 brand.BrandSeasons.Add(
                     new BrandSeason
                     {
-                        Brand = brand,
+                        //Brand = brand,
                         BrandId = brand.Id,
-                        Season = _enumerationRepository.GetSeason(x => x.Id == z),
+                        //Season = _enumerationRepository.GetSeason(x => x.Id == z),
                         SeasonId = z
                     })
             );
 
+            brand.BrandFermentationTypes = new List<BrandFermentationType>();
             beerBrand.FermentationTypeIds.ForEach(s =>
                 brand.BrandFermentationTypes.Add(
                     new BrandFermentationType
                     {
-                        Brand = brand,
+                        //Brand = brand,
                         BrandId = brand.Id,
-                        FermentationType = _enumerationRepository.GetFermentation(x => x.Id == s),
+                        //FermentationType = _enumerationRepository.GetFermentation(x => x.Id == s),
                         FermentationTypeId = s
                     })
             );
 
+            brand.BrandBrewingMethods = new List<BrandBrewingMethod>();
             beerBrand.BrewingMethodIds.ForEach(c =>
                 brand.BrandBrewingMethods.Add(
                     new BrandBrewingMethod
                     {
-                        Brand = brand,
+                        //Brand = brand,
                         BrandId = brand.Id,
-                        BrewingMethod = _enumerationRepository.GetBrewingMethod(x => x.Id == c),
+                        //BrewingMethod = _enumerationRepository.GetBrewingMethod(x => x.Id == c),
                         BrewingMethodId = c
                     })
             );
 
-
+            brand.BrandWrappings = new List<BrandWrapping>();
             beerBrand.WrappingIds.ForEach(v =>
                 brand.BrandWrappings.Add(
                     new BrandWrapping
                     {
-                        Brand = brand,
+                        //Brand = brand,
                         BrandId = brand.Id,
-                        Wrapping = _enumerationRepository.GetWrapping(x => x.Id == v),
+                        //Wrapping = _enumerationRepository.GetWrapping(x => x.Id == v),
                         WrappingId = v
                     })
             );

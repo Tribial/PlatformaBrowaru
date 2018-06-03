@@ -58,7 +58,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
 
             var brandsToModerate = _dbContext.BrandsToModerate.ToList();
 
-            brands = brands.Where(b => brandsToModerate.Select(btm => btm.Id).ToList().Contains(b.Id));
+            brands = brands.Where(b => brandsToModerate.Select(btm => btm.Id).ToList().Contains(b.Id) && b.DeletedBy == null);
 
             if (!string.IsNullOrEmpty(parameters.Query))
             {

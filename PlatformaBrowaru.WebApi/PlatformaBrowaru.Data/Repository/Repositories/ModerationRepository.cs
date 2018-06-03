@@ -56,14 +56,14 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
                 brands = _dbContext.Brands.Include(b => b.Kind).Include(b => b.Ratings).Where(b => b.IsAccepted && b.DeletedBy == null).ToList();
             }
 
-            var brandsToModerate = _dbContext.BrandsToModerate.ToList();
+            var brandsToModerate = _dbContext.BrandsToModerate.Include(b => b.Brand).ToList();
 
-            brands = brands.Where(b => brandsToModerate.Select(btm => btm.Id).ToList().Contains(b.Id) && b.DeletedBy == null);
+            brands = brands.Where(b => brandsToModerate.Select(btm => btm.Brand.Id).ToList().Contains(b.Id) && b.DeletedBy == null);
 
             if (!string.IsNullOrEmpty(parameters.Query))
             {
                 brands = brands.Concat(_dbContext.Brands.Include(b => b.Kind).Include(b => b.Ratings).Where(b =>
-                    !b.IsAccepted &&
+                    !b.IsAccepted && b.DeletedBy == null &&
                     (b.Name.Contains(parameters.Query) ||
                      b.Kind.Name.Contains(parameters.Query))
                 ).ToList());

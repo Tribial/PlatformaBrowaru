@@ -45,7 +45,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             if (!string.IsNullOrEmpty(parameters.Query))
             {
                 brands = _dbContext.Brands.Include(b => b.Kind).Include(b => b.Ratings).Where(b =>
-                    b.IsAccepted &&
+                    b.IsAccepted && b.DeletedBy == null &&
                     (b.Name.Contains(parameters.Query) ||
                     b.Kind.Name.Contains(parameters.Query))
                 ).ToList();
@@ -53,7 +53,7 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             }
             else
             {
-                brands = _dbContext.Brands.Include(b => b.Kind).Include(b => b.Ratings).Where(b => b.IsAccepted).ToList();
+                brands = _dbContext.Brands.Include(b => b.Kind).Include(b => b.Ratings).Where(b => b.IsAccepted && b.DeletedBy == null).ToList();
             }
 
             var brandsToModerate = _dbContext.BrandsToModerate.ToList();

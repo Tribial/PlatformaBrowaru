@@ -368,7 +368,7 @@ namespace PlatformaBrowaru.Services.Services.Services
 
             if (reviews.TotalPageCount == 0)
             {
-                result.Errors.Add("Nie znaleziono takich marek piw");
+                result.Errors.Add("Brak recenzji");
                 return result;
             }
 

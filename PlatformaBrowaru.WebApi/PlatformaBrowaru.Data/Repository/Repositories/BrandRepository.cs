@@ -97,6 +97,12 @@ namespace PlatformaBrowaru.Data.Repository.Repositories
             return result;
         }
 
+        public async Task<bool> UpdateReviewAsync(Review review)
+        {
+            _dbContext.Reviews.Update(review);
+            return await SaveAsync();
+        }
+
         public async Task<bool> SaveAsync()
         {
             return await _dbContext.SaveChangesAsync() > 0;

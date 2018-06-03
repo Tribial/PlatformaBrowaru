@@ -450,29 +450,35 @@ namespace PlatformaBrowaru.Services.Services.Services
         {
             var result = new ResponseDto<BaseModelDto>();
             var brand = _brandRepository.Get(x => x.Id == beerBrandId);
-            var yourReview = brand.Reviews.Find(review => review.Author.Id == userId);
-            if (yourReview != null)
+            var yourReview = _brandRepository.GetReview(r => r.Id == reviewId);
+
+            if (yourReview == null)
+            {
+                result.Errors.Add($"Recenzja o id {reviewId} nie istnieje");
+                return result;
+            }
+
+            if (yourReview.Author.Id != userId && userRole != "Moderator" && userRole != "Administrator")
+            {
+                result.Errors.Add("Nie masz odpowiednich uprawnień, aby edytować tę recenzję");
+                return result;
+            }
+
+            if (yourReview.Author.Id != userId && (userRole == "Moderator" || userRole == "Administrator"))
             {
                 yourReview.Title = editReviewModel.Title;
                 yourReview.Content = editReviewModel.Content;
                 yourReview.EditedAt = DateTime.Now;
             }
-            else
+
+            if (yourReview.Author.Id == userId)
             {
-                if (userRole == "Moderator" || userRole == "Administrator")
-                {
-                    var review = _brandRepository.GetReview(r => r.Id == reviewId);
-                    review.Title = editReviewModel.Title;
-                    review.Content = editReviewModel.Content;
-                    review.EditedAt = DateTime.Now;
-                }
-                else
-                {
-                    result.Errors.Add("Nie masz odpowiednich uprawnień, aby edytować tę recenzję");
-                    return result;
-                }
+                yourReview.Title = editReviewModel.Title;
+                yourReview.Content = editReviewModel.Content;
+                yourReview.EditedAt = DateTime.Now;
             }
-            var updateResult = await _brandRepository.UpdateAsync(brand);
+
+            var updateResult = await _brandRepository.UpdateReviewAsync(yourReview);
             if (!updateResult)
             {
                 result.Errors.Add("Coś poszło nie tak, spróbuj ponownie później.");
